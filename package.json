@@ -1,0 +1,26 @@
+{
+  "name": "kilogram8",
+  "version": "1.0.0",
+  "description": "The best in class messenger",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/urfu-2020/team-8.git"
+  },
+  "keywords": [
+    "messenger",
+    "kri",
+    "urfu",
+    "yandex"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/urfu-2020/team-8/issues"
+  },
+  "homepage": "https://github.com/urfu-2020/team-8#readme"
+}
