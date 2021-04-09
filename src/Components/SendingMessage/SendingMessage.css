@@ -1,0 +1,10 @@
+.writeMessaagelabel {
+    width: 75%
+  }
+  .sendWriteMessage {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
