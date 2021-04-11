@@ -1,5 +1,5 @@
 # Базовый слой
-FROM node:10 
+FROM mhart/alpine-node:14
 
 # Копируем всё что нужно из локальной папки в образ
 COPY app /app
