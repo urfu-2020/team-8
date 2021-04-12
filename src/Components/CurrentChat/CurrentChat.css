@@ -1,14 +1,13 @@
 .messages {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 .currentChat {
-    padding: 20px 40px 20px 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-end;
-    align-items: stretch;
-    align-content: stretch;
-  }  
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  align-items: stretch;
+  align-content: stretch;
+}  

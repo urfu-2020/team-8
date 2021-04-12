@@ -5,7 +5,7 @@ const theme = createMuiTheme({
   palette: {
     type: 'light',
     primary: {
-      main: '#61dafb',
+      main: '#ffffff',
       light: '#61dafb',
       dark: '#21a1c4',
     },
@@ -25,8 +25,8 @@ const theme = createMuiTheme({
   overrides: {
     MuiPaper: {
       root: {
-        padding: '20px 20px',
-        margin: '10px',
+        padding: '20px',
+        margin: '10px 0px 10px 0px',
         backgroundColor: '#fff', // 5d737e
         height: "100%",
 
@@ -37,6 +37,7 @@ const theme = createMuiTheme({
         margin: '5px',
       },
     },
+    
   },
 });
 export default theme;

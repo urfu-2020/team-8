@@ -2,27 +2,25 @@ import React from 'react';
 import './Message.css';
 import Box from '@material-ui/core/Box';
 
-class Message extends React.Component {
-    render() {
-      let textMessege = <Box>{this.props.message.text}</Box>;
-      let timeMessege = <Box className="timeMessage">{this.props.message.time}</Box>;
-      if (this.props.message.isMy) {
-        return (
-          <Box className="myMessage">
-            {timeMessege}
-            {textMessege}
-          </Box>
-        )
-      }
-      else {
-        return (
-          <Box className="message">
-            {textMessege}
-            {timeMessege}
-          </Box>
-        )
-      }
-    }
+function Message({message}) {
+  let textMessege = <Box>{message.text}</Box>;
+  let timeMessege = <Box className="timeMessage" ml={2} mr={2}>{message.time}</Box>;
+  if (message.isMy) {
+    return (
+      <Box className="myMessage" m={0.7} p={1.2}>
+        {timeMessege}
+        {textMessege}
+      </Box>
+    )
   }
+  else {
+    return (
+      <Box className="message" m={0.7} p={1.2}>
+        {textMessege}
+        {timeMessege}
+      </Box>
+    )
+  }
+}
 
-  export default Message
+export default Message

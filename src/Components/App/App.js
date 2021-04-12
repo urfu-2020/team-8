@@ -2,28 +2,30 @@ import React from 'react';
 import './App.css';
 import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
-import { Paper, Grid, TextField } from '@material-ui/core';
+import { Paper, Grid, TextField, AppBar, Toolbar, Typography, Button } from '@material-ui/core';
 import Header from './../../Components/Header/Header';
 import CurrentChat from './../../Components/CurrentChat/CurrentChat';
-import Chat from './../../Components/Chat/Chat';
+import Contact from '../Contact/Contact';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
 
 
 class DB {
   constructor() {
     this.messages = {
       "Имя": [
-        {text: "cmsdkl", isMy: false, time: "14.00"}, 
-        {text: "ojedsvmk", isMy: true, time: "14.10"}, 
-        {text: "vdklmmm.kmjkf", isMy: false, time: "14.30"}
+        {id: "1", text: "cmsdkl", isMy: false, time: "14.00"}, 
+        {id: "2", text: "ojedsvmk", isMy: true, time: "14.10"}, 
+        {id: "3", text: "vdklmmm.kmjkf", isMy: false, time: "14.30"}
       ],
       "Имя2": [
-        {text: "Привет", isMy: true, time: "14.00"}, 
-        {text: "Как ты?", isMy: true, time: "14.00"}, 
-        {text: "Привет", isMy: false, time: "14.10"}, 
-        {text: "норм", isMy: false, time: "14.10"}, 
+        {id: "4", text: "Привет", isMy: true, time: "14.00"}, 
+        {id: "5", text: "Как ты?", isMy: true, time: "14.00"}, 
+        {id: "6", text: "Привет", isMy: false, time: "14.10"}, 
+        {id: "7", text: "норм", isMy: false, time: "14.10"}, 
       ],
       "Имя3": [
-        {text: "Привет", isMy: true, time: "14.10"}, 
+        {id: "8", text: "Привет", isMy: true, time: "14.10"}, 
       ]
     }
   }
@@ -66,47 +68,42 @@ class App extends React.Component {
     this.setState({name: name, messages: messages});
   }
 
-  renderChat(i) {
-    if (i < this.state.names.length) {
-      const messages = this.db.getMessages(this.state.names[i])
-      const lastMessage = messages[messages.length - 1]
-      return <Chat name={this.state.names[i]} text={lastMessage.text} time={lastMessage.time} onClick={() => this.handleClick(this.state.names[i])}/>
-    }
-    return null
-  }
-
   render() {
     return (
       <Container maxWidth={false} className="App">
         <Header/>
         <Paper>
-          <Paper className="searchAndDataCurrentChat">    
+          <Paper className="searchAndDataCurrentContact">    
             <Grid item xs={4}>
               <TextField id="search" className="searchLabel" label="Поиск" />
             </Grid>
             <Grid item xs={8}>
-              <Box className="dataCurrentChat">
-                <Box className="currentChatName">
+              <Box className="dataCurrentContact" ml={1} p={2.5}>
+                <Box className="currentContacttName">
                   {this.state.name}
                 </Box>
-                <Box className="lastEnter">
+                <Box className="currentContactLastEnter">
                   был(а) в сети в 12.30
                 </Box>
               </Box>
             </Grid>
           </Paper>
-          <Box className="chats" height={window.innerHeight * 65 / 100}> 
-            <Grid item xs={4}>   
-              {this.renderChat(0)}
-              {this.renderChat(1)}
-              {this.renderChat(2)} 
-              {this.renderChat(3)} 
-            </Grid>  
-            <CurrentChat name={this.state.name} messages={this.state.messages} db={this.db} onClick={()=>this.getTextMessage()}/>
+          <Box height="65vh">
+            <Grid item xs={12} className="chats"> 
+                <Grid item xs={4}>        
+                {
+                  this.state.names.map(name => {
+                  const messages = this.db.getMessages(name)
+                  const lastMessage = messages[messages.length - 1]
+                  return <Contact key={name} name={name} lastText={lastMessage.text} time={lastMessage.time} onClick={() => this.handleClick(name)}/>
+                  })
+                }
+                </Grid>  
+              <CurrentChat name={this.state.name} messages={this.state.messages} db={this.db} onClick={()=>this.getTextMessage()}/>
+            </Grid>
           </Box>
         </Paper>
       </Container>
-  
     );
   }
 }

@@ -1,19 +1,20 @@
 import React from 'react';
 import logo from './../../static/logo.png';
 import './Header.css';
-import Box from '@material-ui/core/Box';
+import { AppBar, Toolbar, Typography, Button } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
 
-
-class Header extends React.Component {
-    render() {
-      return (
-        <Box className="header" height={window.innerHeight * 8 / 100}>
-          <img src={logo} alt="logo" />
-          <Box className="nameSite">
-            Kilogram
-          </Box>
-        </Box>
-      )
-    }
-  }
+function Header() {
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <img src={logo}/>
+        <Typography variant="h6"  color="inherit">
+          Kilogram
+        </Typography>
+      </Toolbar>
+    </AppBar>
+  )
+}
 export default Header
