@@ -8,9 +8,9 @@ Install dependencies:
 
 `yarn`
 
-Launch the app
+Launch the app in development mode
 
-`yarn start`
+`yarn dev`
 
 
 
@@ -35,6 +35,20 @@ Launch the app
 5. Push to repository and make a PR for `main`
 
 
+
+### Start app via Docker
+
+Build image
+
+`docker build --rm -t <name> .`
+
+Run container
+
+`docker run -p 8080:8080 -d <name>`
+
+Go to localhost:8080 and get static Hello world page
+
+
 ### Available scripts:
 
 1. Lint CSS: `yarn lint-css`
@@ -51,18 +65,6 @@ Launch the app
 
 **eslint** — [setup ts linter](https://www.jetbrains.com/help/webstorm/eslint.html#ws_js_linters_eslint_install)
 
-
-## Docker
-
-Build image
-
-`docker build --rm -t <name> .`
-
-Run container
-
-`docker run -p 8080:8080 -d <name>`
-
-Go to localhost:8080 and get static Hello world page
 
 ## Helpful links:
 
