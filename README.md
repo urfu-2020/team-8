@@ -18,6 +18,18 @@ Launch the app
 
 `npm start` or `yarn start`
 
+## Docker
+
+Build image
+
+`docker build --rm -t <name> .`
+
+Run container
+
+`docker run -p 8080:8080 -d <name>`
+
+Go to localhost:8080 and get static Hello world page
+
 ## Helpful links:
 
 [A course repository](https://github.com/urfu-2020/slides) (Slides, Homework and Igor Savichev) 
