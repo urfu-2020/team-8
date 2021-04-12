@@ -52,6 +52,18 @@ Launch the app
 **eslint** — [setup ts linter](https://www.jetbrains.com/help/webstorm/eslint.html#ws_js_linters_eslint_install)
 
 
+## Docker
+
+Build image
+
+`docker build --rm -t <name> .`
+
+Run container
+
+`docker run -p 8080:8080 -d <name>`
+
+Go to localhost:8080 and get static Hello world page
+
 ## Helpful links:
 
 [A course repository](https://github.com/urfu-2020/slides) (Slides, Homework and Igor Savichev) 
