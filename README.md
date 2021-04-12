@@ -2,20 +2,7 @@
 
 Kilogram8 is the best in class messenger. 
 
-## Usage
-
-Install dependencies:
-
-`yarn`
-
-Launch the app in development mode
-
-`yarn dev`
-
-
-
 ## Development
-
 
 ### Pre-requisites
 
@@ -47,6 +34,17 @@ Run container
 `docker run -p 8080:8080 -d <name>`
 
 Go to localhost:8080 and get static Hello world page
+
+
+### Start app locally
+
+Install dependencies:
+
+`npm-install`
+
+Launch the app in development mode
+
+`npm run-script dev`
 
 
 ### Available scripts:
