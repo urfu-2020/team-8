@@ -1,10 +1,10 @@
-import http, {IncomingMessage, ServerResponse} from "http"
+import * as http from 'http'
 
 const hostname = ""
 const port = 8080
 const surgeDomain = "http://messenger.ufru.surge.sh/"
 
-const server = http.createServer((req: IncomingMessage, res: ServerResponse ) => {
+const server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse ) => {
 	if(req.url == "/index.html") {
 		res.setHeader("Content-Type", "text/html")
 		res.writeHead(301, {Location: surgeDomain})
