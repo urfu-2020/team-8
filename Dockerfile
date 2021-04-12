@@ -6,9 +6,6 @@ COPY app /app
 COPY package.json /
 COPY package-lock.json / 
 
-# Устанавливаем зависимости, в образе появится /node_modules
-RUN npm ci --production
-
 # При старте контейнер начнёт общаться через 8080 порт
 EXPOSE 8080
 
