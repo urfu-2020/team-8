@@ -2,6 +2,7 @@
   border: 1px black solid;
   display: flex;
   align-items: flex-end;
+  height: 4.5vh;
 }
 .myMessage {    
   align-self: flex-end;

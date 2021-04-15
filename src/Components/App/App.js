@@ -2,12 +2,10 @@ import React from 'react';
 import './App.css';
 import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
-import { Paper, Grid, TextField, AppBar, Toolbar, Typography, Button } from '@material-ui/core';
+import { Paper, Grid, TextField } from '@material-ui/core';
 import Header from './../../Components/Header/Header';
 import CurrentChat from './../../Components/CurrentChat/CurrentChat';
 import Contact from '../Contact/Contact';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 
 
 class DB {
@@ -25,16 +23,22 @@ class DB {
         {id: "7", text: "норм", isMy: false, time: "14.10"}, 
       ],
       "Имя3": [
-        {id: "8", text: "Привет", isMy: true, time: "14.10"}, 
+        {id: "8", text: "Привет", isMy: true, time: "14.10"},
+      ],
+      "Имя4": [
+        {id: "9", text: "qwertyuiop", isMy: false, time: "14.00"}, 
+        {id: "10", text: "zxcvbnm", isMy: false, time: "14.50"},
       ]
     }
   }
-  getMessages(name="Имя") {
-    return this.messages[name]
+  getMessages(name="Имя", n=10) { // ограничение по кол-ву сообщений чтобы все влезло, потом скролл будет
+      let messages = this.messages[name]
+      n = Math.min(n, messages.length)
+      return messages.slice(messages.length - n)
   }
 
   addMessage(name="Имя", text_mes="", isMy_mes=false, time_mes="") {
-    if (text_mes != "")
+    if (text_mes !== "")
       this.messages[name].push({text: text_mes, isMy: isMy_mes, time: time_mes})
   }
 
@@ -51,7 +55,7 @@ class App extends React.Component {
     this.state = {
       names: names,
       messages: this.db.getMessages(names[0]),
-      name: names[0]
+      name: names[0],
     }
   }  
 
