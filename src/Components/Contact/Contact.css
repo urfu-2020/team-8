@@ -3,7 +3,7 @@
   width: 98%;
   justify-content: flex-start;
 }
-.contact__timeLastMessage {
+.contact__last-message__time {
   text-align: right;
   display: flex;
   align-items: flex-end;

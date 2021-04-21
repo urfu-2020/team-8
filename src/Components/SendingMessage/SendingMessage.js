@@ -10,7 +10,7 @@ function SendingMessage ({onClick, handleWriteMessage, message}) {
       <TextField 
         id="writeMessaage" 
         autoComplete='off' 
-        className="write-message-label" 
+        className="write-message__text-field" 
         label="Написать сообщение" 
         value={message} 
         onChange={handleWriteMessage}/>

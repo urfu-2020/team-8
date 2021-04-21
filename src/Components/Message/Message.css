@@ -1,16 +1,16 @@
-.message, .my-message {
+.message, .message__mine {
   border: 1px black solid;
   display: flex;
   align-items: flex-end;
   height: 4.5vh;
 }
-.my-message {    
+.message__mine {    
   align-self: flex-end;
   border-radius: 50px 25px 0px 50px;
 }  
 .message {
   border-radius: 25px 50px 50px 0px;
 }
-.time-message {
+.message__time {
   font-size: 10px;
 }

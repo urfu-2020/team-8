@@ -17,7 +17,7 @@ function Contact({name, lastText, time, handleClickContact}) {
             {lastText}
           </Typography>
         </Box>
-        <Typography className="contact__timeLastMessage">
+        <Typography className="contact__last-message__time">
           {time}
         </Typography>
       </Button>
