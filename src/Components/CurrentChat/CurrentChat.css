@@ -1,13 +1,12 @@
-.messages {
+.current-contact__messages {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
-.currentChat {
+.current-contact {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: flex-end;
   align-items: stretch;
-  align-content: stretch;
 }  

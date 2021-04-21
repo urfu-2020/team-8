@@ -1,7 +1,7 @@
-.writeMessaagelabel {
+.write-message-label {
   width: 75%
 }
-.sendWriteMessage {
+.send-form {
   display: flex;
   flex-direction: row;
   width: 100%;

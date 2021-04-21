@@ -6,6 +6,7 @@ import { Paper, Grid, TextField } from '@material-ui/core';
 import Header from './../../Components/Header/Header';
 import CurrentChat from './../../Components/CurrentChat/CurrentChat';
 import Contact from '../Contact/Contact';
+import getFormattedDate from './../../utils/date.utils'
 
 
 class DB {
@@ -56,20 +57,29 @@ class App extends React.Component {
       names: names,
       messages: this.db.getMessages(names[0]),
       name: names[0],
+      message: ""
     }
+    this.handleWriteMessage = this.handleWriteMessage.bind(this);
   }  
 
   getTextMessage() {
-    const time = new Date()
-    this.db.addMessage(this.state.name, document.getElementById('writeMessaage').value, true, time.getHours() + "." + time.getMinutes())
+    this.db.addMessage(this.state.name, this.state.message, true, getFormattedDate(new Date()))
     const messages = this.db.getMessages(this.state.name)
     this.setState({messages: messages});
-    document.getElementById('writeMessaage').value = ""
+    this.setState({
+      message: ""
+    });
   }
 
-  handleClick(name) {
+  handleWriteMessage(e) {
+    this.setState({
+      message: e.target.value
+    });
+  }
+
+  handleClickContact(name) {
     const messages = this.db.getMessages(name)
-    this.setState({name: name, messages: messages});
+    this.setState({name: name, messages: messages, message: ""});
   }
 
   render() {
@@ -77,33 +87,42 @@ class App extends React.Component {
       <Container maxWidth={false} className="App">
         <Header/>
         <Paper>
-          <Paper className="searchAndDataCurrentContact">    
+          <Paper className="container">    
             <Grid item xs={4}>
-              <TextField id="search" className="searchLabel" label="Поиск" />
+              <TextField id="search" className="container__search-label" label="Поиск" />
             </Grid>
             <Grid item xs={8}>
-              <Box className="dataCurrentContact" ml={1} p={2.5}>
-                <Box className="currentContacttName">
+              <Box className="container__current-contact" ml={1} p={2.5}>
+                <Box className="container__current-contact__name">
                   {this.state.name}
                 </Box>
-                <Box className="currentContactLastEnter">
+                <Box className="container__current-contact__last-enter">
                   был(а) в сети в 12.30
                 </Box>
               </Box>
             </Grid>
           </Paper>
           <Box height="65vh">
-            <Grid item xs={12} className="chats"> 
+            <Grid item xs={12} className="contacts"> 
                 <Grid item xs={4}>        
                 {
                   this.state.names.map(name => {
                   const messages = this.db.getMessages(name)
                   const lastMessage = messages[messages.length - 1]
-                  return <Contact key={name} name={name} lastText={lastMessage.text} time={lastMessage.time} onClick={() => this.handleClick(name)}/>
+                  return <Contact 
+                    key={name} 
+                    name={name} 
+                    lastText={lastMessage.text} 
+                    time={lastMessage.time} 
+                    handleClickContact={() => this.handleClickContact(name)}/>
                   })
                 }
                 </Grid>  
-              <CurrentChat name={this.state.name} messages={this.state.messages} db={this.db} onClick={()=>this.getTextMessage()}/>
+              <CurrentChat 
+                message={this.state.message} 
+                handleWriteMessage={this.handleWriteMessage} 
+                messages={this.state.messages} 
+                onClick={() => this.getTextMessage()}/>
             </Grid>
           </Box>
         </Paper>

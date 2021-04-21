@@ -1,15 +1,15 @@
-.chat {
+.contact {
   display: flex;
   width: 98%;
   justify-content: flex-start;
 }
-.timeLastMessage {
+.contact__timeLastMessage {
   text-align: right;
   display: flex;
   align-items: flex-end;
   font-size: 30px;
 }
-.infoChat {
+.contact__info {
   width: 80%;
   display: flex;
   flex-direction: column;

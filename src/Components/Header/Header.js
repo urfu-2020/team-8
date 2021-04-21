@@ -1,13 +1,12 @@
 import React from 'react';
-import logo from './../../static/logo.png';
-import './Header.css';
+import Logo from './../../Components/Logo/Logo'
 import { AppBar, Toolbar, Typography } from '@material-ui/core';
 
 function Header() {
   return (
     <AppBar position="static">
       <Toolbar>
-        <img src={logo} alt="logo"/>
+        <Logo/>
         <Typography variant="h6"  color="inherit">
           Kilogram
         </Typography>

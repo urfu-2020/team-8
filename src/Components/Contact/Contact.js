@@ -5,11 +5,11 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import { Button, Avatar } from '@material-ui/core';
 
-function Contact({name, lastText, time, onClick}) {
+function Contact({name, lastText, time, handleClickContact}) {
   return (
-    <Button variant="outlined" className="chat" onClick={() => onClick(name)}>
+    <Button variant="outlined" className="contact" onClick={() => handleClickContact(name)}>
         <Avatar alt="Remy Sharp" src={avatar}/>
-        <Box className="infoChat"m={1}>
+        <Box className="contact__info"m={1}>
           <Typography>
             {name}
           </Typography>
@@ -17,7 +17,7 @@ function Contact({name, lastText, time, onClick}) {
             {lastText}
           </Typography>
         </Box>
-        <Typography className="timeLastMessage">
+        <Typography className="contact__timeLastMessage">
           {time}
         </Typography>
       </Button>

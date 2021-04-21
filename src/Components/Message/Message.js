@@ -4,10 +4,10 @@ import Box from '@material-ui/core/Box';
 
 function Message({message}) {
   let textMessege = <Box>{message.text}</Box>;
-  let timeMessege = <Box className="timeMessage" ml={2} mr={2}>{message.time}</Box>;
+  let timeMessege = <Box className="time-message" ml={2} mr={2}>{message.time}</Box>;
   if (message.isMy) {
     return (
-      <Box className="myMessage" m={0.7} p={1.2}>
+      <Box className="my-message" m={0.7} p={1.2}>
         {timeMessege}
         {textMessege}
       </Box>

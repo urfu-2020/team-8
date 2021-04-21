@@ -1,24 +1,24 @@
-.chats {
+.contacts {
   display: flex;
   flex-direction: row;
   height: 100%;
 }
-.currentContacttName {
+.container__current-contact__name {
   text-align: left;
   width: 50%;
 }
-.currentContactLastEnter {
+.container__current-contact__last-enter {
   text-align: right;
   width: 50%;
 }
-.searchAndDataCurrentContact {
+.container {
   display: flex;
   flex-direction: row;
 }
-.searchLabel {
+.container__search-label {
   width: 80%;
 }
-.dataCurrentContact {
+.container__current-contact {
   display: flex;
   align-items: flex-end;
 }
