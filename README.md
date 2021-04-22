@@ -63,6 +63,20 @@ Launch the app in development mode
 
 **eslint** — [setup ts linter](https://www.jetbrains.com/help/webstorm/eslint.html#ws_js_linters_eslint_install)
 
+##### How deploy static content on surge?
+
+Locally:
+1. you should be added to surge project
+2. go to /static_content directory
+3. run `surge` command in terminal
+4. login and watching the magic
+
+For questions about credentials and domain name - welcome to telegram chat.
+
+Heroku: 
+
+Automatic deploy with token and postbuild heroku trigger(see package.json script part).
+
 
 ## Helpful links:
 
