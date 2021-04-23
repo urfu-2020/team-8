@@ -2,7 +2,7 @@
 FROM mhart/alpine-node:14
 
 # Копируем всё что нужно из локальной папки в образ
-COPY app /app
+COPY server /app
 COPY package.json /
 COPY package-lock.json /
 COPY tsconfig.json /
