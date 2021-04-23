@@ -2,20 +2,20 @@
   "name": "kilogram8",
   "version": "1.0.0",
   "description": "The best in class messenger",
-  "homepage": "https://github.com/urfu-2020/team-8#readme",
+  "homepage": "/",
   "main": "index.js",
   "scripts": {
     "dev": "npm run-script build && npm run-script start",
-    "start": "node dist/index.js",
-    "build": "npx tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-backend": "node dist/server/index.js",
+    "build-backend": "npx tsc",
+    "test-backend": "echo \"Error: no test specified\" && exit 1",
     "start-frontend": "react-scripts start",
     "build-frontend": "react-scripts build",
     "test-frontend": "react-scripts test",
     "eject-frontend": "react-scripts eject",
-    "lint": "npm run-script lint-ts && npm run-script lint-css",
-    "lint-ts": "eslint server/**/*.ts --fix",
-    "lint-css": "npx stylelint server/**/*.css --fix"
+    "lint": "npm run-script lint-frontend && npm run-script lint-backend",
+    "lint-frontend": "eslint src/**/*.js --fix && npx stylelint src/**/*.css --fix",
+    "lint-backend": "eslint server/**/*.ts --fix"
   },
   "eslintConfig": {
     "extends": [

@@ -1,6 +1,6 @@
 import * as http from "http"
 
-const hostname = ""
+const hostname = "localhost"
 const port = 8080
 const surgeDomain = "http://messenger.ufru.surge.sh/"
 
