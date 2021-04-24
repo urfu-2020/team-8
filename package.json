@@ -5,17 +5,22 @@
   "homepage": "/",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run-script build && npm run-script start",
+    "dev": "npm run-script dev-frontend && npm run-script dev-backend",
+    "lint": "npm run-script lint-frontend && npm run-script lint-backend",
+    "build": "npm run-script build-frontend && npm run-script build-backend",
+    "start": "npm run-script start-frontend && npm run-script start-backend",
+
+    "dev-backend": "",
     "start-backend": "node dist/server/index.js",
     "build-backend": "npx tsc",
     "test-backend": "echo \"Error: no test specified\" && exit 1",
-    "start-frontend": "react-scripts start",
+    "lint-backend": "eslint server/**/*.ts --fix",
+
+    "dev-frontend": "react-scripts start",
+    "start-frontend": "npm run-script build && npm run-script start",
     "build-frontend": "react-scripts build",
     "test-frontend": "react-scripts test",
-    "eject-frontend": "react-scripts eject",
-    "lint": "npm run-script lint-frontend && npm run-script lint-backend",
     "lint-frontend": "eslint src/**/*.js --fix && npx stylelint src/**/*.css --fix",
-    "lint-backend": "eslint server/**/*.ts --fix"
   },
   "eslintConfig": {
     "extends": [
