@@ -1,4 +1,4 @@
-name: Lint
+name: Test Frontend
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [14.x, 12.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -23,4 +23,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: npm run-script lint
+      - run: npm link
+      - run: npm run test --workspace=frontend

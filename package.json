@@ -10,8 +10,8 @@
   "scripts": {
     "dev": "concurrently \"npm run start --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "lint": "npm run lint --workspaces",
-    "build": "npm run-script build-frontend && npm run-script build-backend",
-    "start": "npm run-script start-frontend && npm run-script start-backend"
+    "build": "npm run build --workspaces",
+    "start": "npm run start --workspace=frontend"
   },
   "eslintConfig": {
     "extends": [
