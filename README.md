@@ -6,24 +6,91 @@ Kilogram8 is the best in class messenger.
 
 ### Pre-requisites
 
-1. You should have `NodeJS` installed 
-2. You should know `js`
+1. You should know `js`
+2. You should have `NodeJS>=12` installed 
+3. You should have `npm>=7` installed` 
 
+
+### Project overview and tech stack
+
+Project is a monorepository with two subprojects:
+
+* Frontend (React + Redux + Mui)
+* Backend (Express)
+
+```
+├───.github
+├───backend
+│   └───src
+│   └───package.json
+├───frontend
+│   └───src
+│   └───package.json
+└─package.json
+```
 
 ### Workflow
 
 1. Clone the repository or pull from `main`
 2. Create new branch.
 3. Make feature
-4. Ensure code quality:
-   * lint everything: `yarn lint`
-   * compile and start ts: `yarn build`
+4. Ensure code quality!:
+   * lint everything: `npm run lint`
+   * compile and start ts: `npm run lint`
       
 5. Push to repository and make a PR for `main`
 
 
+### Start app locally
 
-### Start app via Docker
+**⚠️ Ensure you have `npm>=7` installed ⚠️**
+
+`npm -v`
+
+You can update npm [here](https://docs.npmjs.com/try-the-latest-stable-version-of-npm)
+
+#### Install and link dependencies:**
+
+Install [typescript](https://www.typescriptlang.org/) and [concurrently](https://github.com/kimmobrunfeldt/concurrently#readme)
+
+`npm install -g concurrently typescript`
+
+#### Install dependencies
+
+`npm install`
+
+#### Link dependencies
+
+`npm link`
+
+#### Launch the app in development mode
+
+`npm run dev`
+
+
+### Available scripts:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | start whole project in dev mode |
+| `npm run build`| build whole project |
+| `npm run start` | start whole **pre-built** project |
+| `npm run frontend`| start frontend in dev mode|
+| `npm run backend` | start backend in dev mode |
+
+#### Running scripts inside workspaces
+
+If you want to run a specific script inside workspace you can use:
+
+`npm run <command> --workspace=<workspace>`
+
+where _workspace_ is `frontend` or `backend`
+where _command_ is a npm script described under <workspace> `package.json`
+
+> Please note, that lint aslo enforces the codestyle
+
+
+### Start app via Docker (OUTDATED)
 
 Build image
 
@@ -34,25 +101,6 @@ Run container
 `docker run -p 8080:8080 -d <name>`
 
 Go to localhost:8080 and get static Hello world page
-
-
-### Start app locally
-
-Install dependencies:
-
-`npm-install`
-
-Launch the app in development mode
-
-`npm run-script dev`
-
-
-### Available scripts:
-
-1. Lint CSS: `yarn lint-css`
-2. Lint TS: `yarn lint-ts`
-
-> Please note, that lint-ts aslo enforces the codestyle.
 
 
 ### FAQ:

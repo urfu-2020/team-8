@@ -11,7 +11,9 @@
     "dev": "concurrently \"npm run start --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "lint": "npm run lint --workspaces",
     "build": "npm run build --workspaces",
-    "start": "npm run start --workspace=frontend"
+    "start": "npm run start --workspace=frontend",
+    "frontend": "npm run start --workspace=frontend",
+    "backend": "npm run dev --workspace=backend"
   },
   "eslintConfig": {
     "extends": [
