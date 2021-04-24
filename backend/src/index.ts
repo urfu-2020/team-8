@@ -9,4 +9,4 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get("/api/", (req, res) => res.json({hello: "world"}))
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
+app.listen(port, () => console.log(`Listening on http://localhost:${port}/api/`))
