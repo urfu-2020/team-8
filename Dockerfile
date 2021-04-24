@@ -11,6 +11,7 @@ COPY tsconfig.json /
 EXPOSE 8080
 
 RUN npm install
+RUN npm link
 RUN npm run-script build
 
 # При старте контейнер выполнит эту команду – запустит наше приложение

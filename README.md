@@ -84,7 +84,7 @@ If you want to run a specific script inside workspace you can use:
 
 `npm run <command> --workspace=<workspace>`
 
-where _workspace_ is `frontend` or `backend`
+where _workspace_ is either `frontend` or `backend`
 where _command_ is a npm script described under <workspace> `package.json`
 
 > Please note, that lint aslo enforces the codestyle
