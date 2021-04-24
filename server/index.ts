@@ -1,21 +1,12 @@
-import * as http from "http"
+import bodyParser from "body-parser"
+import express from "express"
 
-const hostname = "localhost"
-const port = 8080
-const surgeDomain = "http://messenger.ufru.surge.sh/"
+const app = express()
+const port = process.env.PORT || 5000
 
-const server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse ) => {
-	if(req.url == "/index.html") {
-		res.setHeader("Content-Type", "text/html")
-		res.writeHead(301, {Location: surgeDomain})
-		res.end()
-		return
-	}
-	res.statusCode = 200
-	res.setHeader("Content-Type", "text/plain")
-	res.end("Hello World")
-})
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
-server.listen(process.env.PORT || port, undefined, () => {
-	console.log(`Server running at http://${hostname}:${port}/`)
-})
+app.get("/api/", (req, res) => res.json({hello: "world"}))
+
+app.listen(port, () => console.log(`Listening on port ${port}`))
