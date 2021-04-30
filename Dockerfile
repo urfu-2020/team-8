@@ -2,7 +2,7 @@
 FROM mhart/alpine-node:14
 
 # Копируем всё что нужно из локальной папки в образ
-COPY app /app
+COPY server /app
 COPY package.json /
 COPY package-lock.json /
 COPY tsconfig.json /
@@ -11,6 +11,7 @@ COPY tsconfig.json /
 EXPOSE 8080
 
 RUN npm install
+RUN npm link
 RUN npm run-script build
 
 # При старте контейнер выполнит эту команду – запустит наше приложение

@@ -1,0 +1,29 @@
+.contacts {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+}
+
+.container__current-contact__name {
+	text-align: left;
+	width: 50%;
+}
+
+.container__current-contact__last-enter {
+	text-align: right;
+	width: 50%;
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+}
+
+.container__search-label {
+	width: 80%;
+}
+
+.container__current-contact {
+	display: flex;
+	align-items: flex-end;
+}
