@@ -6,4 +6,4 @@ export function getElapsedTime(date) {
 	return new Date() - date;
 }
 
-export default {getFormattedDate, getElapsedTime}
+export default (getFormattedDate, getElapsedTime)

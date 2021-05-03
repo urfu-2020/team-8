@@ -69,7 +69,6 @@ app.get("/api/", (req, res) => {
 
 
 app.post("/logout", (req, res) => {
-  console.log("logout")
   let userName = req.body["login"]
   if (db.hasOwnProperty(userName)) {
       db[userName]["isLogin"] = false
