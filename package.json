@@ -15,7 +15,7 @@
     "frontend": "npm run dev --workspace=frontend",
     "backend": "npm run dev --workspace=backend",
     "heroku-postbuild": "npm run-script surge",
-    "surge": "surge --project ./app/static_content --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}",
+    "surge": "surge --project ./app/static_content --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}"
   },
   "eslintConfig": {
     "extends": [
