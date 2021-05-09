@@ -16,7 +16,13 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     next();
   });
+/*
+  req.body - code to exchange for an authorization token
 
+  res.login - login in Github
+  res.avatar_url - avatar in Github
+  res.lifetime - lifetime of Github authorization token
+*/
 app.post("/api/authenticate", (req, res) => {
   const { code } = req.body;
   const data = new FormData();
@@ -67,7 +73,6 @@ app.post("/logout", (req, res) => {
   if (db.hasOwnProperty(userName)) {
       db[userName]["isLogin"] = false
   }
-  console.log(db)
 });
 
 
