@@ -10,20 +10,7 @@ export class User {
     }
 }
 
-export class DB2 {
-    users:Array<User>;
-
-    constructor() {
-        this.users = []
-    }
-    
-    add(user) {
-        this.users.push(user)
-        console.log(this.users)
-    }
-}
-
 export class Users {
-
+    [key: string]: User
 }
 

@@ -1,6 +1,5 @@
 import bodyParser from "body-parser"
 import express from "express"
-import FormData from "form-data";
 const { client_id, redirect_uri, client_secret, lifetime } = require("./config");
 import fetch from "node-fetch";
 import {Users, User} from "./db";
@@ -16,6 +15,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     next();
   });
+  
 /*
   req.body - code to exchange for an authorization token
 
@@ -25,42 +25,44 @@ app.use((req, res, next) => {
 */
 app.post("/api/authenticate", (req, res) => {
   const { code } = req.body;
-  const data = new FormData();
-  data.append("client_id", client_id);
-  data.append("client_secret", client_secret);
-  data.append("code", code);
-  data.append("redirect_uri", redirect_uri);
+  const data = JSON.stringify({
+    client_id: client_id,
+    client_secret: client_secret,
+    code: code,
+    redirect_uri: redirect_uri
+  })
 
   // Request to exchange code for an access token
   fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     body: data,
+    headers: {
+      'Content-Type':'application/json',
+      'Accept':'application/json'
+    }
   })
+  .then((response) => response.json())
   .then((response) => {
-    return response.text()
-  })
-  .then((paramsString) => {
-    let params = new URLSearchParams(paramsString);
-    const access_token = params.get("access_token");
+    const access_token = response.access_token;
 
     // Request to return data of a user that has been authenticated
     return fetch(`https://api.github.com/user`, { 
       headers: {
-      Authorization: `token ${access_token}`,
+        Authorization: `token ${access_token}`,
       },
     });
   })
   .then((response) => response.json())
   .then((response) => {
-    let user = new User( response["login"], response["avatar_url"], true)
-    let userName = response["login"]
+    let user = new User(response.login, response.avatar_url, true)
+    let userName = response.login
     if (db.hasOwnProperty(userName)) {
-          db[userName]["isLogin"] = true
+          db[userName].isLogin = true
     }
     else {
       db[userName] = user
     }
-    let partResp = {"login": response["login"], "avatar_url": response["avatar_url"], "lifetime": lifetime} 
+    let partResp = {login: response.login, avatar_url: response.avatar_url, lifetime: lifetime} 
     return res.status(200).json(partResp);
   })
   .catch((error) => {
@@ -69,9 +71,9 @@ app.post("/api/authenticate", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  let userName = req.body["login"]
+  let userName = req.body.login
   if (db.hasOwnProperty(userName)) {
-      db[userName]["isLogin"] = false
+      db[userName].isLogin = false
   }
 });
 
