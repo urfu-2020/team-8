@@ -1,4 +1,4 @@
-{
+module.exports = {
     "env": {
         "browser": true,
         "es2021": true,
@@ -31,6 +31,11 @@
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "no-mixed-spaces-and-tabs": [
+            "error",
+            "smart-tabs"
+        ],
+        "@typescript-eslint/no-var-requires": 1
     }
 }

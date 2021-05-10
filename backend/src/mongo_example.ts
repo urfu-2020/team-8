@@ -1,4 +1,4 @@
-const MongoClient = require('mongodb').MongoClient;
+const MongoClient = require("mongodb").MongoClient
 
 // connection uri ant set up connection example
 // in product environment get user and password from heroku application envs
@@ -11,31 +11,31 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // simple example connect to database userStorage, get collection named users, and insert one document
 async function putDocument() {
-    try {
-        await client.connect()
-        const usersCollection = client.db("userStorage").collection("users")
-        // create a document to be inserted
-        const testUser = {name: "Ivan", login: "ivan123"}
-        // insert document in database userStorage, users collection
-        const result = await usersCollection.insertOne(testUser);
-        console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`)
-    } finally {
-        await client.close()
-    }
+	try {
+		await client.connect()
+		const usersCollection = client.db("userStorage").collection("users")
+		// create a document to be inserted
+		const testUser = {name: "Ivan", login: "ivan123"}
+		// insert document in database userStorage, users collection
+		const result = await usersCollection.insertOne(testUser)
+		console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`)
+	} finally {
+		await client.close()
+	}
 }
 putDocument().catch(console.dir)
 
 // simple example connect to database userStorage, get collection named users, and get one document
 async function getDocument() {
-    try {
-        await client.connect()
-        const database = client.db("userStorage")
-        const users = database.collection("users")
-        // get document by his part
-        const readData = await users.findOne({name: "Ivan"})
-        console.log(`${readData} documents were retrieve from database`)
-    } finally {
-        await client.close()
-    }
+	try {
+		await client.connect()
+		const database = client.db("userStorage")
+		const users = database.collection("users")
+		// get document by his part
+		const readData = await users.findOne({name: "Ivan"})
+		console.log(`${readData} documents were retrieve from database`)
+	} finally {
+		await client.close()
+	}
 }
 getDocument().catch(console.dir)
