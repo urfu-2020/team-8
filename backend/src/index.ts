@@ -9,7 +9,7 @@ const MongoClient = require("mongodb").MongoClient
 const app = express()
 
 const MONGO_USER = "messenger"
-const MONGO_PASSWORD = "get from heroku env - https://dashboard.heroku.com/apps/messenger-ufru-course/settings"
+const MONGO_PASSWORD = process.env["MONGO_PASSWORD"]
 
 const uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -24,7 +24,6 @@ app.use((req, res, next) => {
 })
 /*
   req.body - code to exchange for an authorization token
-
   res.login - login in Github
   res.avatar_url - avatar in Github
   res.lifetime - lifetime of Github authorization token
@@ -42,10 +41,10 @@ app.post("/api/authenticate", (req, res) => {
 		method: "POST",
 		body: data,
 	})
-		.then((response) => {
+		.then((response: { text: () => any }) => {
 			return response.text()
 		})
-		.then((paramsString) => {
+		.then((paramsString: string | string[][] | Record<string, string> | URLSearchParams | undefined) => {
 			const params = new URLSearchParams(paramsString)
 			const access_token = params.get("access_token")
 
@@ -56,13 +55,13 @@ app.post("/api/authenticate", (req, res) => {
 				},
 			})
 		})
-		.then((response) => response.json())
+		.then((response: { json: () => any }) => response.json())
 		.then(workWithDb)
-		.catch((error) => {
+		.catch((error: any) => {
 			return res.status(400).json(error)
 		})
 
-	async function workWithDb(response) {
+	async function workWithDb(response: { [x: string]: any }) {
 		const user = new User(response["login"], response["avatar_url"], true)
 
 		try {
