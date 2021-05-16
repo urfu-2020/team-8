@@ -1,6 +1,31 @@
-const config = require('../.eslintrc')
-
-// We remove the typescript plugin, because our frontend app is still plain .js
-config.plugins = []
-
-module.exports = config
+module.exports = {
+	"env": {
+		"browser": true,
+		"es2021": true,
+		"node": true
+	},
+	"extends": [
+		"eslint:recommended",
+	],
+	"parserOptions": {
+		"ecmaVersion": 12
+	},
+	"rules": {
+		"indent": [
+			"error",
+			"tab"
+		],
+		"linebreak-style": [
+			"error",
+			"unix"
+		],
+		"quotes": [
+			"error",
+			"double"
+		],
+		"semi": [
+			"error",
+			"never"
+		]
+	}
+}
