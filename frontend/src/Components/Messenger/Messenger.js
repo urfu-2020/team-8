@@ -1,12 +1,14 @@
 import React from "react"
-import "./App.css"
+import "./Messenger.css"
 import Container from "@material-ui/core/Container"
 import Box from "@material-ui/core/Box"
 import { Paper, Grid, TextField } from "@material-ui/core"
-import Header from "./../../Components/Header/Header"
-import CurrentChat from "./../../Components/CurrentChat/CurrentChat"
+import Header from "../Header/Header"
+import CurrentChat from "../CurrentChat/CurrentChat"
 import Contact from "../Contact/Contact"
-import getFormattedDate from "./../../utils/date.utils"
+import getFormattedDate from "../../utils/date.utils"
+import {Avatar } from "@material-ui/core"
+
 
 
 class DB {
@@ -48,7 +50,7 @@ class DB {
 	}
 }
 
-class App extends React.Component {
+class Messenger extends React.Component {
 	constructor(props) {
 		super(props)
 		this.db = new DB()
@@ -84,10 +86,16 @@ class App extends React.Component {
 
 	render() {
 		return (
-			<Container maxWidth={false} className="App">
-				<Header/>
+			<Container maxWidth={false}>
+				<Header handleLogout={this.props.handleLogout}/>
 				<Paper>
-					<Paper className="container">    
+					<Paper className="container">
+						<Grid item xs={1}>
+							<Box className="container__data-user">
+								<Avatar alt="Remy Sharp" src={this.props.avatar}/>
+								{this.props.login}
+							</Box>
+						</Grid>    
 						<Grid item xs={4}>
 							<TextField id="search" className="container__search-label" label="Поиск" />
 						</Grid>
@@ -131,4 +139,4 @@ class App extends React.Component {
 	}
 }
 
-export default App
+export default Messenger
