@@ -3,7 +3,7 @@ export function getFormattedDate(date) {
 }
 
 export function getElapsedTime(date) {
-	return new Date() - date;
+	return new Date() - date
 }
 
 export default (getFormattedDate, getElapsedTime)
