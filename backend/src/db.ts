@@ -13,4 +13,3 @@ export class User {
 export class Users {
     [key: string]: User
 }
-

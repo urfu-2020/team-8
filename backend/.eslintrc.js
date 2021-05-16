@@ -31,6 +31,8 @@ module.exports = {
 		"semi": [
 			"error",
 			"never"
-		]
+		],
+		'@typescript-eslint/no-var-requires': 0,
+		'no-mixed-spaces-and-tabs': 0
 	}
 }

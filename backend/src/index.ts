@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*")
 	next()
 })
-  
+
 /*
   req.body - code to exchange for an authorization token
 
@@ -46,7 +46,7 @@ app.post("/api/authenticate", (req, res) => {
 			const access_token = response.access_token
 
 			// Request to return data of a user that has been authenticated
-			return fetch("https://api.github.com/user", { 
+			return fetch("https://api.github.com/user", {
 				headers: {
 					Authorization: `token ${access_token}`,
 				},
@@ -56,13 +56,13 @@ app.post("/api/authenticate", (req, res) => {
 		.then((response) => {
 			const user = new User(response.login, response.avatar_url, true)
 			const userName = response.login
-			if (db.hasOwnProperty(userName)) {
+			if (db[userName]) {
 				db[userName].isLogin = true
 			}
 			else {
 				db[userName] = user
 			}
-			const partResp = {login: response.login, avatar_url: response.avatar_url, lifetime: lifetime} 
+			const partResp = {login: response.login, avatar_url: response.avatar_url, lifetime: lifetime}
 			return res.status(200).json(partResp)
 		})
 		.catch((error) => {
@@ -70,9 +70,9 @@ app.post("/api/authenticate", (req, res) => {
 		})
 })
 
-app.post("/logout", (req, res) => {
+app.post("/logout", (req) => {
 	const userName = req.body.login
-	if (db.hasOwnProperty(userName)) {
+	if (db[userName]) {
 		db[userName].isLogin = false
 	}
 })
