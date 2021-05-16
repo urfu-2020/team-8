@@ -10,12 +10,6 @@
     "test": "react-scripts test",
     "lint": "eslint src/**/*.js --fix && npx stylelint src/**/*.css --fix"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
