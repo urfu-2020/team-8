@@ -1,17 +1,17 @@
 import React from "react"
 import Logo from "./../../Components/Logo/Logo"
 import { AppBar, Toolbar, Typography, Button } from "@material-ui/core"
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles"
 
 
 const useStyles = makeStyles((theme) => ({
-    title: {
-      flexGrow: 1
-    }
-}));
+	title: {
+		flexGrow: 1
+	}
+}))
 
 function Header({handleLogout}) {
-	const classes = useStyles();
+	const classes = useStyles()
 	return (
 		<AppBar position="static">
 			<Toolbar>
