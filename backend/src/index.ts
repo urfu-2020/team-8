@@ -1,5 +1,6 @@
 import bodyParser from "body-parser"
 import express from "express"
+// @ts-ignore
 import FormData from "form-data"
 import fetch from "node-fetch"
 import {User} from "./userClass"
@@ -99,6 +100,22 @@ app.post("/logout", async (req, res) => {
 	return res.status(200)
 })
 
+app.get("/api/users", async (req, res) => {
+	const userName = req.body["login"]
+	try {
+		await client.connect()
+		const usersCollection = client.db("userStorage").collection("users")
+
+		if (await usersCollection.findOne({name: userName}) !== null && await usersCollection.findOne({name: userName}).login === true) {
+			// достанет всех пользователей из базы
+			const allUsers = await usersCollection.find({}).toArray()
+			const allUsersResult = JSON.stringify(allUsers.map(user => user.name))
+			return res.status(200).json(allUsersResult)
+		} else return res.status(403)
+	} finally {
+		await client.close()
+	}
+})
 
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}/api/`))
