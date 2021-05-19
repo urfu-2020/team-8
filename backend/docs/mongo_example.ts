@@ -1,4 +1,5 @@
 const MongoClient = require("mongodb").MongoClient
+import type { User } from "../src/models/user"
 
 // connection uri ant set up connection example
 // in product environment get user and password from heroku application envs
@@ -15,7 +16,7 @@ async function putDocument() {
 		await client.connect()
 		const usersCollection = client.db("userStorage").collection("users")
 		// create a document to be inserted
-		const testUser = {name: "Ivan", login: "ivan123"}
+		const testUser: User = {name: "Ivan", avatar: "url", online: true}
 		// insert document in database userStorage, users collection
 		const result = await usersCollection.insertOne(testUser)
 		console.log(`${result.insertedCount} documents were inserted with the _id: ${result.insertedId}`)

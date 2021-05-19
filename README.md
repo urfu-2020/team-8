@@ -102,6 +102,9 @@ Run container
 
 Go to localhost:8080 and get static Hello world page
 
+#### Simple code examples for  MongoDB
+
+You can find this here - `backend/docs/mongo_example.ts`
 
 ### FAQ:
 
@@ -124,7 +127,6 @@ For questions about credentials and domain name - welcome to telegram chat.
 Heroku: 
 
 Automatic deploy with token and postbuild heroku trigger(see package.json script part).
-
 
 ## Helpful links:
 

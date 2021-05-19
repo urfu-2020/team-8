@@ -1,12 +1,9 @@
 import bodyParser from "body-parser"
 import express from "express"
-// @ts-ignore
-import FormData from "form-data"
 import fetch from "node-fetch"
-import {User} from "./userClass"
+import type { User } from "./models/user"
 const { client_id, redirect_uri, client_secret, lifetime } = require("./config")
 const MongoClient = require("mongodb").MongoClient
-
 const app = express()
 
 const MONGO_USER = "messenger"
@@ -31,11 +28,12 @@ app.use((req, res, next) => {
 */
 app.post("/api/authenticate", (req, res) => {
 	const { code } = req.body
-	const data = new FormData()
-	data.append("client_id", client_id)
-	data.append("client_secret", client_secret)
-	data.append("code", code)
-	data.append("redirect_uri", redirect_uri)
+	const data = JSON.stringify({
+		client_id: client_id,
+		client_secret: client_secret,
+		code: code,
+		redirect_uri: redirect_uri
+	})
 
 	// Request to exchange code for an access token
 	fetch("https://github.com/login/oauth/access_token", {
@@ -63,7 +61,7 @@ app.post("/api/authenticate", (req, res) => {
 		})
 
 	async function workWithDb(response: { [x: string]: any }) {
-		const user = new User(response["login"], response["avatar_url"], true)
+		const user: User = {name: response.login, avatar: response.avatar_url, online: true}
 
 		try {
 			await client.connect()
@@ -73,19 +71,19 @@ app.post("/api/authenticate", (req, res) => {
 				await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
 				console.debug(`User ${user.name} is login`)
 			} else {
-				const insertedUser = await usersCollection.insertOne(user.toMongoDocument())
+				const insertedUser = await usersCollection.insertOne(user)
 				console.debug(`User ${insertedUser.name} save in database`)
 			}
 		} finally {
 			await client.close()
 		}
-		const partResp = {"login": response["login"], "avatar_url": response["avatar_url"], "lifetime": lifetime}
+		const partResp = {"login": response.login, "avatar_url": response.avatar_url, "lifetime": lifetime}
 		return res.status(200).json(partResp)
 	}
 })
 
 app.post("/logout", async (req, res) => {
-	const userName = req.body["login"]
+	const userName = req.body.login
 	try {
 		await client.connect()
 		const usersCollection = client.db("userStorage").collection("users")
@@ -101,15 +99,15 @@ app.post("/logout", async (req, res) => {
 })
 
 app.get("/api/users", async (req, res) => {
-	const userName = req.body["login"]
+	const userName = req.body.login
 	try {
 		await client.connect()
 		const usersCollection = client.db("userStorage").collection("users")
 
-		if (await usersCollection.findOne({name: userName}) !== null && await usersCollection.findOne({name: userName}).login === true) {
+		if (await usersCollection.findOne({name: userName}) !== null && await usersCollection.findOne({name: userName}).login) {
 			// достанет всех пользователей из базы
-			const allUsers = await usersCollection.find({}).toArray()
-			const allUsersResult = JSON.stringify(allUsers.map(user => user.name))
+			const allUsers: User[] = await usersCollection.find({}).toArray()
+			const allUsersResult = JSON.stringify(allUsers.map((user) => {user.name}))
 			return res.status(200).json(allUsersResult)
 		} else return res.status(403)
 	} finally {
