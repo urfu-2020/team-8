@@ -6,8 +6,7 @@ const { client_id, redirect_uri, client_secret, lifetime, mongo_user, mongo_pass
 const MongoClient = require("mongodb").MongoClient
 const app = express()
 
-
-const uri = `mongodb+srv://${mongo_user}:${mongo_password}.@H@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${mongo_user}:${mongo_password}@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 client.connect()
 
@@ -94,15 +93,18 @@ app.post("/api/logout", async (req, res) => {
 
 
 app.get("/api/users", async (req, res) => {
-	const userName =req.body.login
+	const userName = req.body.login
 	try {
 		const usersCollection = await client.db("userStorage").collection("users")
-		if (await usersCollection.findOne({name: userName}).login) {
+		const userData = await usersCollection.findOne({name: userName})
+		if (userData !== null && userData.login) {
 			// достанет всех пользователей из базы
-			console.log(userName)
 			const allUsers: User[] = await usersCollection.find({}).toArray()
 			return res.status(200).json(allUsers.map(user => user.name))
-		} else {
+		} else if (userData === null) {
+			return res.status(400).json("Incorrect body")
+		}
+		else {
 			return res.status(403).json("Forbidden")
 		}
 	} catch (error) {

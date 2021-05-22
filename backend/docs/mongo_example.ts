@@ -7,7 +7,7 @@ import type { User } from "../src/models/user"
 const MONGO_USER = "messenger"
 const MONGO_PASSWORD = "get from heroku env - https://dashboard.heroku.com/apps/messenger-ufru-course/settings"
 
-const uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}.@H@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // simple example connect to database userStorage, get collection named users, and insert one document
