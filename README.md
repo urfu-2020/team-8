@@ -104,7 +104,7 @@ Go to localhost:8080 and get static Hello world page
 
 #### Simple code examples for  MongoDB
 
-You can find this here - `backend/docs/mongo_example.ts`
+You can find this here - `backend/docs/mongo_example.js`
 
 ### FAQ:
 

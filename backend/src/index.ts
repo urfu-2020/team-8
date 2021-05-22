@@ -2,15 +2,14 @@ import bodyParser from "body-parser"
 import express from "express"
 import fetch from "node-fetch"
 import type { User } from "./models/user"
-const { client_id, redirect_uri, client_secret, lifetime } = require("./config")
+const { client_id, redirect_uri, client_secret, lifetime, mongo_user, mongo_password } = require("./config")
 const MongoClient = require("mongodb").MongoClient
 const app = express()
 
-const MONGO_USER = "messenger"
-const MONGO_PASSWORD = process.env["MONGO_PASSWORD"]
 
-const uri = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${mongo_user}:${mongo_password}.@H@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+client.connect()
 
 app.use(bodyParser.json())
 app.use(bodyParser.json({ type: "text/*" }))
@@ -39,13 +38,14 @@ app.post("/api/authenticate", (req, res) => {
 	fetch("https://github.com/login/oauth/access_token", {
 		method: "POST",
 		body: data,
+		headers: {
+			"Content-Type":"application/json",
+			"Accept":"application/json"
+		}
 	})
-		.then((response: { text: () => any }) => {
-			return response.text()
-		})
-		.then((paramsString: string | string[][] | Record<string, string> | URLSearchParams | undefined) => {
-			const params = new URLSearchParams(paramsString)
-			const access_token = params.get("access_token")
+		.then((response) => response.json())
+		.then((response)  => {
+			const access_token = response.access_token
 
 			// Request to return data of a user that has been authenticated
 			return fetch("https://api.github.com/user", {
@@ -54,66 +54,67 @@ app.post("/api/authenticate", (req, res) => {
 				},
 			})
 		})
-		.then((response: { json: () => any }) => response.json())
-		.then(workWithDb)
-		.catch((error: any) => {
+		.then((response => response.json()))
+		.then(async response => {
+			const user: User = {name: response.login, avatar: response.avatar_url, online: true}
+			try {
+				const usersCollection = client.db("userStorage").collection("users")
+
+				if (await usersCollection.findOne({name: user.name})) {
+					await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
+					console.debug(`User ${user.name} is login`)
+				} else {
+					const insertedUser = await usersCollection.insertOne(user)
+					console.debug(`User ${insertedUser.name} save in database`)
+				}
+			} finally {
+				console.debug("In finally block")
+			}
+			const partResp = {"login": response.login, "avatar_url": response.avatar_url, "lifetime": lifetime}
+			return res.status(200).json(partResp)
+		})
+		.catch((error: Error) => {
 			return res.status(400).json(error)
 		})
-
-	async function workWithDb(response: { [x: string]: any }) {
-		const user: User = {name: response.login, avatar: response.avatar_url, online: true}
-
-		try {
-			await client.connect()
-			const usersCollection = client.db("userStorage").collection("users")
-
-			if (await usersCollection.findOne({name: user.name}) !== null) {
-				await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
-				console.debug(`User ${user.name} is login`)
-			} else {
-				const insertedUser = await usersCollection.insertOne(user)
-				console.debug(`User ${insertedUser.name} save in database`)
-			}
-		} finally {
-			await client.close()
-		}
-		const partResp = {"login": response.login, "avatar_url": response.avatar_url, "lifetime": lifetime}
-		return res.status(200).json(partResp)
-	}
 })
 
-app.post("/logout", async (req, res) => {
+app.post("/api/logout", async (req, res) => {
 	const userName = req.body.login
 	try {
-		await client.connect()
 		const usersCollection = client.db("userStorage").collection("users")
-
-		if (await usersCollection.findOne({name: userName}) !== null) {
+		if (await usersCollection.findOne({name: userName})) {
 			await usersCollection.updateOne({name: userName}, {$set: {isLogin: false}})
 			console.debug(`User ${userName} is logout`)
-		}
+			return res.status(200).json("Success logout")
+		} else return res.status(403).json("Forbidden")
 	} finally {
-		await client.close()
+		console.debug("In finally block")
 	}
-	return res.status(200)
 })
+
 
 app.get("/api/users", async (req, res) => {
-	const userName = req.body.login
+	const userName =req.body.login
 	try {
-		await client.connect()
-		const usersCollection = client.db("userStorage").collection("users")
-
-		if (await usersCollection.findOne({name: userName}) !== null && await usersCollection.findOne({name: userName}).login) {
+		const usersCollection = await client.db("userStorage").collection("users")
+		if (await usersCollection.findOne({name: userName}).login) {
 			// достанет всех пользователей из базы
+			console.log(userName)
 			const allUsers: User[] = await usersCollection.find({}).toArray()
-			const allUsersResult = JSON.stringify(allUsers.map((user) => {user.name}))
-			return res.status(200).json(allUsersResult)
-		} else return res.status(403)
-	} finally {
-		await client.close()
+			return res.status(200).json(allUsers.map(user => user.name))
+		} else {
+			return res.status(403).json("Forbidden")
+		}
+	} catch (error) {
+		console.debug(error)
+		return res.json("Sorry, application is crashed)")
 	}
+	finally {
+		console.debug("In finally block")
+	}
+
 })
+
 
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}/api/`))
