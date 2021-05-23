@@ -24,8 +24,45 @@ class Messenger extends React.Component {
 		this.handleWriteMessage = this.handleWriteMessage.bind(this)
 	}  
 
+	tick() {
+		console.log("tick")
+		fetch("http://localhost:5000/api/messages", {
+			method: "POST",
+			body: JSON.stringify({"name": this.state.name, "currentName": this.props.login}),
+		})
+			.then(res2 => res2.json())
+			.then(
+				(res2) => {
+					this.setState({
+						messages: res2.messages
+					})
+				}
+			)
+		fetch("http://localhost:5000/api/names", {
+			method: "POST",
+			body: JSON.stringify({"currentName": this.props.login})
+		})
+			.then(res => res.json())
+			.then(
+				(result) => {
+					this.setState({
+						names: Object.keys(result),
+						lastMessages: result
+					})
+				}
+			)
+	}
+
 	componentDidMount() {
-		fetch("http://localhost:5000/api/names")
+		this.timerID = setInterval(
+			() => this.tick(),
+			1000
+		)
+
+		fetch("http://localhost:5000/api/names",{
+			method: "POST",
+			body: JSON.stringify({"currentName": this.props.login})
+		})
 			.then(res => res.json())
 			.then(
 				(result) => {
@@ -36,7 +73,7 @@ class Messenger extends React.Component {
 					})
 					fetch("http://localhost:5000/api/messages", {
 						method: "POST",
-						body: JSON.stringify({"name": this.state.name, "currentName": "Svetlana1200"}),
+						body: JSON.stringify({"name": this.state.name, "currentName": this.props.login}),
 					})
 						.then(res2 => res2.json())
 						.then(
@@ -55,11 +92,12 @@ class Messenger extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if (prevState !== undefined && (this.state.name !== prevState.name || this.state.message === "" && prevState.message !== "")) {
-			console.log(prevState)
+		console.log(this.state)
+		
+		if (this.state.name !== prevState.name || this.state.message === "" && prevState.message !== "") {
 			fetch("http://localhost:5000/api/messages", {
 				method: "POST",
-				body: JSON.stringify({"name": this.state.name, "currentName": "Svetlana1200"}),
+				body: JSON.stringify({"name": this.state.name, "currentName": this.props.login}),
 			})
 				.then(res2 => res2.json())
 				.then(
@@ -70,7 +108,7 @@ class Messenger extends React.Component {
 					}
 				)
 		}
-		if (prevState !== undefined && this.state.message == "" && prevState.message !== "") {
+		if (this.state.message == "" && prevState.message !== "") {
 			fetch("http://localhost:5000/api/names")
 				.then(res => res.json())
 				.then(
@@ -91,7 +129,7 @@ class Messenger extends React.Component {
 
 			fetch("http://localhost:5000/api/addMessage", {
 				method: "POST",
-				body: JSON.stringify({"name": this.state.name, "message": message, "currentName": "Svetlana1200"})
+				body: JSON.stringify({"name": this.state.name, "message": message, "currentName": this.props.login})
 			})
 				.then((res) => {				
 					console.log(this.state.message)

@@ -66,11 +66,17 @@ app.post("/api/authenticate", (req, res) => {
 				db[userName].isLogin = true
 			}
 			else {
-				for (let k in Object.keys(db)) {
-					dialogs.push({dialog_id: dialogs.length + 1, dialog_one_user_id: response.login, dialog_two_user_id: k})
+				if (response.login !== "Svetlana1200"){ /////////////
+					for (let k of Object.keys(db)) {
+						dialogs.push({dialog_id: dialogs.length + 1, dialog_one_user_id: response.login, dialog_two_user_id: k})
+					}
 				}
 				db[userName] = user
 			}
+			console.log(response.login)
+			
+			console.log(db)
+			console.log(dialogs)
 			const partResp = {login: response.login, avatar_url: response.avatar_url, lifetime: lifetime}
 			return res.status(200).json(partResp)
 		})
@@ -106,41 +112,28 @@ let m = [
 	{chat_messages_id: 10, chat_messages_text: "zxcvbnm", chat_messages_fk_dialog_id: 4, chat_messages_fk_user_id: "Имя4", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.50"},
 ]
 
-app.get("/api/names", (req, res) => {
+app.post("/api/names", (req, res) => {
+	let curName = req.body.currentName
+	let names = Object.keys(db)
+	console.log(curName)
+	console.log(names)
 	let ans : any = {}
 	for (let i = m.length - 1; i >= 0; i--) {
 		let a = m[i].chat_messages_fk_user_id
 		let b = m[i].chat_messages_fk_to_user_id
-		if (!ans.hasOwnProperty(a))
-			ans[a] = {text: m[i].chat_messages_text, isMy: true, time: m[i].chat_messages_time }
-		if (!ans.hasOwnProperty(b))
-			ans[b] = {text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time }
+		if (a === curName || b === curName) {
+			if (!ans.hasOwnProperty(a))
+				ans[a] = {text: m[i].chat_messages_text, isMy: true, time: m[i].chat_messages_time }
+			if (!ans.hasOwnProperty(b))
+				ans[b] = {text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time }
+		}
+	}
+	for (let name of names) {
+		if (!ans.hasOwnProperty(name))
+			ans[name] = {text: "Начните чат", isMy: true, time: "00.00"}
 	}
 	return res.json(ans)	
 })
-
-
-/*
-let messages : any = {
-	"Имя": [
-		{id: "1", text: "cmsdkl", isMy: false, time: "14.00"}, 
-		{id: "2", text: "ojedsvmk", isMy: true, time: "14.10"}, 
-		{id: "3", text: "vdklmmm.kmjkf", isMy: false, time: "14.30"}
-	],
-	"Имя2": [
-		{id: "4", text: "Привет", isMy: true, time: "14.00"}, 
-		{id: "5", text: "Как ты?", isMy: true, time: "14.00"}, 
-		{id: "6", text: "Привет", isMy: false, time: "14.10"}, 
-		{id: "7", text: "норм", isMy: false, time: "14.10"}, 
-	],
-	"Имя3": [
-		{id: "8", text: "Привет", isMy: true, time: "14.10"},
-	],
-	"Имя4": [
-		{id: "9", text: "qwertyuiop", isMy: false, time: "14.00"}, 
-		{id: "10", text: "zxcvbnm", isMy: false, time: "14.50"},
-	]
-}*/
 
 app.post("/api/messages", (req, res) => {
 	let currentName = req.body.currentName
@@ -152,10 +145,6 @@ app.post("/api/messages", (req, res) => {
 		else if (m[i].chat_messages_fk_user_id === name && m[i].chat_messages_fk_to_user_id === currentName)
 			messages.push({text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time })
 	}
-
-	/*if (messages[req.body.name] === undefined)
-		return res.json({"messages": []})
-	let messagesCur = {"messages": messages[req.body.name]}*/
 	return res.json({"messages": messages})
 })
 
