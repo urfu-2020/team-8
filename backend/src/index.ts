@@ -6,6 +6,11 @@ import {Users, User} from "./db"
 
 const app = express()
 const db = new Users()
+db["Имя"] = new User("Имя", "")
+db["Имя2"] = new User("Имя2", "")
+db["Имя3"] = new User("Имя3", "")
+db["Имя4"] = new User("Имя4", "")
+
 
 app.use(bodyParser.json())
 app.use(bodyParser.json({ type: "text/*" }))
@@ -56,10 +61,14 @@ app.post("/api/authenticate", (req, res) => {
 		.then((response) => {
 			const user = new User(response.login, response.avatar_url, true)
 			const userName = response.login
+
 			if (db[userName]) {
 				db[userName].isLogin = true
 			}
 			else {
+				for (let k in Object.keys(db)) {
+					dialogs.push({dialog_id: dialogs.length + 1, dialog_one_user_id: response.login, dialog_two_user_id: k})
+				}
 				db[userName] = user
 			}
 			const partResp = {login: response.login, avatar_url: response.avatar_url, lifetime: lifetime}
@@ -75,8 +84,110 @@ app.post("/logout", (req) => {
 	if (db[userName]) {
 		db[userName].isLogin = false
 	}
+	
 })
 
+let dialogs = [
+	{dialog_id: 1, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя"},
+	{dialog_id: 2, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя2"},
+	{dialog_id: 3, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя3"},
+	{dialog_id: 4, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя4"},
+]
+let m = [
+	{chat_messages_id: 1, chat_messages_text: "cmsdkl", chat_messages_fk_dialog_id: 1, chat_messages_fk_user_id: "Имя", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.00"},
+	{chat_messages_id: 4, chat_messages_text: "Привет", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя2", chat_messages_time: "14.00"},
+	{chat_messages_id: 5, chat_messages_text: "Как ты?", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя2", chat_messages_time: "14.00"},
+	{chat_messages_id: 9, chat_messages_text: "qwertyuiop", chat_messages_fk_dialog_id: 4, chat_messages_fk_user_id: "Имя4", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.00"},
+	{chat_messages_id: 2, chat_messages_text: "ojedsvmk", chat_messages_fk_dialog_id: 1, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя", chat_messages_time: "14.10"},
+	{chat_messages_id: 6, chat_messages_text: "Привет", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Имя2", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.10"},
+	{chat_messages_id: 7, chat_messages_text: "норм", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Имя2", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.10"},
+	{chat_messages_id: 8, chat_messages_text: "Привет", chat_messages_fk_dialog_id: 3, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя3", chat_messages_time: "14.10"},
+	{chat_messages_id: 3, chat_messages_text: "vdklmmm.kmjkf", chat_messages_fk_dialog_id: 1, chat_messages_fk_user_id: "Имя", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.30"},
+	{chat_messages_id: 10, chat_messages_text: "zxcvbnm", chat_messages_fk_dialog_id: 4, chat_messages_fk_user_id: "Имя4", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.50"},
+]
+
+app.get("/api/names", (req, res) => {
+	let ans : any = {}
+	for (let i = m.length - 1; i >= 0; i--) {
+		let a = m[i].chat_messages_fk_user_id
+		let b = m[i].chat_messages_fk_to_user_id
+		if (!ans.hasOwnProperty(a))
+			ans[a] = {text: m[i].chat_messages_text, isMy: true, time: m[i].chat_messages_time }
+		if (!ans.hasOwnProperty(b))
+			ans[b] = {text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time }
+	}
+	return res.json(ans)	
+})
+
+
+/*
+let messages : any = {
+	"Имя": [
+		{id: "1", text: "cmsdkl", isMy: false, time: "14.00"}, 
+		{id: "2", text: "ojedsvmk", isMy: true, time: "14.10"}, 
+		{id: "3", text: "vdklmmm.kmjkf", isMy: false, time: "14.30"}
+	],
+	"Имя2": [
+		{id: "4", text: "Привет", isMy: true, time: "14.00"}, 
+		{id: "5", text: "Как ты?", isMy: true, time: "14.00"}, 
+		{id: "6", text: "Привет", isMy: false, time: "14.10"}, 
+		{id: "7", text: "норм", isMy: false, time: "14.10"}, 
+	],
+	"Имя3": [
+		{id: "8", text: "Привет", isMy: true, time: "14.10"},
+	],
+	"Имя4": [
+		{id: "9", text: "qwertyuiop", isMy: false, time: "14.00"}, 
+		{id: "10", text: "zxcvbnm", isMy: false, time: "14.50"},
+	]
+}*/
+
+app.post("/api/messages", (req, res) => {
+	let currentName = req.body.currentName
+	let name = req.body.name
+	let messages : any = []
+	for (let i = 0; i < m.length; i++) {
+		if (m[i].chat_messages_fk_user_id === currentName && m[i].chat_messages_fk_to_user_id === name)
+			messages.push({text: m[i].chat_messages_text, isMy: true, time: m[i].chat_messages_time })
+		else if (m[i].chat_messages_fk_user_id === name && m[i].chat_messages_fk_to_user_id === currentName)
+			messages.push({text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time })
+	}
+
+	/*if (messages[req.body.name] === undefined)
+		return res.json({"messages": []})
+	let messagesCur = {"messages": messages[req.body.name]}*/
+	return res.json({"messages": messages})
+})
+
+app.post("/api/addMessage", (req, res) => {
+	let message = req.body.message
+	let name = req.body.name
+	let currentName = req.body.currentName
+	let dialogId = 0
+	for (var i = 0; i < dialogs.length; i++) {
+		if (dialogs[i].dialog_one_user_id === currentName && dialogs[i].dialog_two_user_id === name 
+			|| dialogs[i].dialog_one_user_id === name && dialogs[i].dialog_two_user_id === currentName) {
+				dialogId = i + 1
+			}
+	}	
+	let a
+	let b
+	if (message.isMy)
+	{
+		a = currentName
+		b = name
+	}
+	else
+	{
+		a = name
+		b = currentName
+	}
+	m.push({
+		chat_messages_id: m.length + 1, chat_messages_text: message.text, chat_messages_fk_dialog_id: dialogId, chat_messages_fk_user_id: a, chat_messages_fk_to_user_id: b, chat_messages_time: message.time
+	})
+	//messages[name].push(message)
+	return res.json({"status": true})
+})
 
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}/api/`))

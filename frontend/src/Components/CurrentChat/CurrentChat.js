@@ -11,7 +11,12 @@ function CurrentChat({messages, onClick, message, handleWriteMessage}) {
 				<Box className="current-contact__messages"> 
 					{messages.map(element => <Message key={element.id} message={element}/>)}
 				</Box>
-				<SendingMessage message={message} onClick={()=>onClick()} handleWriteMessage={handleWriteMessage}/>
+
+				{messages.length > 0
+					? <SendingMessage message={message} onClick={()=>onClick()} handleWriteMessage={handleWriteMessage}/>
+					: "Пока нет зарегистрированных пользователей"
+				}
+
 			</Paper>
 		</Grid>
 	)
