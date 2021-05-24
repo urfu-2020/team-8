@@ -6,10 +6,7 @@ import {Users, User} from "./db"
 
 const app = express()
 const db = new Users()
-db["Имя"] = new User("Имя", "")
-db["Имя2"] = new User("Имя2", "")
-db["Имя3"] = new User("Имя3", "")
-db["Имя4"] = new User("Имя4", "")
+let allMessages : any = [] // сообщения имеют следующий вид {messageText: "text", fromUser: "from", toUser: "to", messageTime: "time"}
 
 
 app.use(bodyParser.json())
@@ -66,17 +63,8 @@ app.post("/api/authenticate", (req, res) => {
 				db[userName].isLogin = true
 			}
 			else {
-				if (response.login !== "Svetlana1200"){ /////////////
-					for (let k of Object.keys(db)) {
-						dialogs.push({dialog_id: dialogs.length + 1, dialog_one_user_id: response.login, dialog_two_user_id: k})
-					}
-				}
 				db[userName] = user
 			}
-			console.log(response.login)
-			
-			console.log(db)
-			console.log(dialogs)
 			const partResp = {login: response.login, avatar_url: response.avatar_url, lifetime: lifetime}
 			return res.status(200).json(partResp)
 		})
@@ -93,88 +81,71 @@ app.post("/logout", (req) => {
 	
 })
 
-let dialogs = [
-	{dialog_id: 1, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя"},
-	{dialog_id: 2, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя2"},
-	{dialog_id: 3, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя3"},
-	{dialog_id: 4, dialog_one_user_id: "Svetlana1200", dialog_two_user_id: "Имя4"},
-]
-let m = [
-	{chat_messages_id: 1, chat_messages_text: "cmsdkl", chat_messages_fk_dialog_id: 1, chat_messages_fk_user_id: "Имя", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.00"},
-	{chat_messages_id: 4, chat_messages_text: "Привет", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя2", chat_messages_time: "14.00"},
-	{chat_messages_id: 5, chat_messages_text: "Как ты?", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя2", chat_messages_time: "14.00"},
-	{chat_messages_id: 9, chat_messages_text: "qwertyuiop", chat_messages_fk_dialog_id: 4, chat_messages_fk_user_id: "Имя4", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.00"},
-	{chat_messages_id: 2, chat_messages_text: "ojedsvmk", chat_messages_fk_dialog_id: 1, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя", chat_messages_time: "14.10"},
-	{chat_messages_id: 6, chat_messages_text: "Привет", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Имя2", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.10"},
-	{chat_messages_id: 7, chat_messages_text: "норм", chat_messages_fk_dialog_id: 2, chat_messages_fk_user_id: "Имя2", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.10"},
-	{chat_messages_id: 8, chat_messages_text: "Привет", chat_messages_fk_dialog_id: 3, chat_messages_fk_user_id: "Svetlana1200", chat_messages_fk_to_user_id: "Имя3", chat_messages_time: "14.10"},
-	{chat_messages_id: 3, chat_messages_text: "vdklmmm.kmjkf", chat_messages_fk_dialog_id: 1, chat_messages_fk_user_id: "Имя", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.30"},
-	{chat_messages_id: 10, chat_messages_text: "zxcvbnm", chat_messages_fk_dialog_id: 4, chat_messages_fk_user_id: "Имя4", chat_messages_fk_to_user_id: "Svetlana1200", chat_messages_time: "14.50"},
-]
 
-app.post("/api/names", (req, res) => {
-	let curName = req.body.currentName
+// Получить последние сообщения и аватарки других пользователей
+app.post("/api/lastMessages", (req, res) => {
+	let currentUserName = req.body.currentUserName
 	let names = Object.keys(db)
-	console.log(curName)
-	console.log(names)
 	let ans : any = {}
-	for (let i = m.length - 1; i >= 0; i--) {
-		let a = m[i].chat_messages_fk_user_id
-		let b = m[i].chat_messages_fk_to_user_id
-		if (a === curName || b === curName) {
-			if (!ans.hasOwnProperty(a))
-				ans[a] = {text: m[i].chat_messages_text, isMy: true, time: m[i].chat_messages_time }
-			if (!ans.hasOwnProperty(b))
-				ans[b] = {text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time }
+	ans["messages"] = {}
+	ans["avatars"] = {}
+	
+	for (let i = allMessages.length - 1; i >= 0; i--) {
+		let fromUser = allMessages[i].fromUser
+		let toUser = allMessages[i].toUser
+		if (fromUser === currentUserName || toUser === currentUserName) {
+			if (!ans["messages"].hasOwnProperty(fromUser)) {
+				ans["messages"][fromUser] = {text: allMessages[i].messageText, isMy: true, time: allMessages[i].messageTime }
+				ans["avatars"][fromUser] = db[fromUser].avatar
+			}
+			if (!ans["messages"].hasOwnProperty(toUser)) {
+				ans["messages"][toUser] = {text: allMessages[i].messageText, isMy: false, time: allMessages[i].messageTime }
+				ans["avatars"][toUser] = db[toUser].avatar
+			}
 		}
 	}
+	// если сообщений между пользователями еще не было
 	for (let name of names) {
-		if (!ans.hasOwnProperty(name))
-			ans[name] = {text: "Начните чат", isMy: true, time: "00.00"}
+		if (!ans["messages"].hasOwnProperty(name)) {
+			ans["messages"][name] = {text: "Начните чат", isMy: true, time: "00.00"}
+			ans["avatars"][name] = db[name].avatar
+		}
 	}
-	return res.json(ans)	
+	return res.json(ans)
 })
 
+// Получить сообщения между двумя пользователями
 app.post("/api/messages", (req, res) => {
-	let currentName = req.body.currentName
-	let name = req.body.name
+	let currentUserName = req.body.currentUserName
+	let interlocutorUserName = req.body.interlocutorUserName
 	let messages : any = []
-	for (let i = 0; i < m.length; i++) {
-		if (m[i].chat_messages_fk_user_id === currentName && m[i].chat_messages_fk_to_user_id === name)
-			messages.push({text: m[i].chat_messages_text, isMy: true, time: m[i].chat_messages_time })
-		else if (m[i].chat_messages_fk_user_id === name && m[i].chat_messages_fk_to_user_id === currentName)
-			messages.push({text: m[i].chat_messages_text, isMy: false, time: m[i].chat_messages_time })
+	for (let i = 0; i < allMessages.length; i++) {
+		if (allMessages[i].fromUser === currentUserName && allMessages[i].toUser === interlocutorUserName)
+			messages.push({text: allMessages[i].messageText, isMy: true, time: allMessages[i].messageTime })
+		else if (allMessages[i].fromUser === interlocutorUserName && allMessages[i].toUser === currentUserName)
+			messages.push({text: allMessages[i].messageText, isMy: false, time: allMessages[i].messageTime })
 	}
 	return res.json({"messages": messages})
 })
 
+// Добавить сообщение {text: string, isMy: bool, time: string} между двумя пользователями 
 app.post("/api/addMessage", (req, res) => {
 	let message = req.body.message
-	let name = req.body.name
-	let currentName = req.body.currentName
-	let dialogId = 0
-	for (var i = 0; i < dialogs.length; i++) {
-		if (dialogs[i].dialog_one_user_id === currentName && dialogs[i].dialog_two_user_id === name 
-			|| dialogs[i].dialog_one_user_id === name && dialogs[i].dialog_two_user_id === currentName) {
-				dialogId = i + 1
-			}
-	}	
-	let a
-	let b
-	if (message.isMy)
-	{
-		a = currentName
-		b = name
+	let interlocutorUserName = req.body.interlocutorUserName
+	let currentUserName = req.body.currentUserName
+	let fromUser
+	let toUser
+	if (message.isMy) {
+		fromUser = currentUserName
+		toUser = interlocutorUserName
 	}
-	else
-	{
-		a = name
-		b = currentName
+	else {
+		fromUser = interlocutorUserName
+		toUser = currentUserName
 	}
-	m.push({
-		chat_messages_id: m.length + 1, chat_messages_text: message.text, chat_messages_fk_dialog_id: dialogId, chat_messages_fk_user_id: a, chat_messages_fk_to_user_id: b, chat_messages_time: message.time
+	allMessages.push({
+		messageText: message.text, fromUser: fromUser, toUser: toUser, messageTime: message.time
 	})
-	//messages[name].push(message)
 	return res.json({"status": true})
 })
 

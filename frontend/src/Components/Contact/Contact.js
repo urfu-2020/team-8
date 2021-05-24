@@ -1,11 +1,10 @@
 import React from "react"
-import avatar from "./../../static/avatar.jpg"
 import "./Contact.css"
 import Typography from "@material-ui/core/Typography"
 import Box from "@material-ui/core/Box"
 import { Button, Avatar } from "@material-ui/core"
 
-function Contact({name, lastText, time, handleClickContact}) {
+function Contact({avatar, name, lastText, time, handleClickContact}) {
 	return (
 		<Button variant="outlined" className="contact" onClick={() => handleClickContact(name)}>
 			<Avatar alt="Remy Sharp" src={avatar}/>
