@@ -94,11 +94,11 @@ app.post("/api/lastMessages", (req, res) => {
 		let fromUser = allMessages[i].fromUser
 		let toUser = allMessages[i].toUser
 		if (fromUser === currentUserName || toUser === currentUserName) {
-			if (!ans["messages"].hasOwnProperty(fromUser)) {
+			if (!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) {
 				ans["messages"][fromUser] = {text: allMessages[i].messageText, isMy: true, time: allMessages[i].messageTime }
 				ans["avatars"][fromUser] = db[fromUser].avatar
 			}
-			if (!ans["messages"].hasOwnProperty(toUser)) {
+			if (!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) {
 				ans["messages"][toUser] = {text: allMessages[i].messageText, isMy: false, time: allMessages[i].messageTime }
 				ans["avatars"][toUser] = db[toUser].avatar
 			}
@@ -106,7 +106,7 @@ app.post("/api/lastMessages", (req, res) => {
 	}
 	// если сообщений между пользователями еще не было
 	for (let name of names) {
-		if (!ans["messages"].hasOwnProperty(name)) {
+		if (!Object.prototype.hasOwnProperty.call(ans["messages"], name)) {
 			ans["messages"][name] = {text: "Начните чат", isMy: true, time: "00.00"}
 			ans["avatars"][name] = db[name].avatar
 		}
