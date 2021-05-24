@@ -9,6 +9,12 @@ import Contact from "../Contact/Contact"
 //import getFormattedDate from "../../utils/date.utils"
 import {Avatar } from "@material-ui/core"
 
+import { ThemeProvider } from "@material-ui/core/styles"
+import CssBaseline from "@material-ui/core/CssBaseline"
+import themeLight from "../../themeLight"
+import themeDark from "../../themeDark"
+
+
 
 class Messenger extends React.Component {
 	constructor(props) {
@@ -20,8 +26,10 @@ class Messenger extends React.Component {
 			lastMessages: {},
 			avatars: {},
 			message: "",
+			isDarkTheme: false
 		}
 		this.handleWriteMessage = this.handleWriteMessage.bind(this)
+		this.handleChangeTheme = this.handleChangeTheme.bind(this)
 	}  
 
 	update() {
@@ -100,62 +108,77 @@ class Messenger extends React.Component {
 		this.setState({name: name})
 	}
 
+	handleChangeTheme() {
+		console.log(this)
+		let isDarkTheme = this.state.isDarkTheme
+		this.setState({
+			isDarkTheme: !isDarkTheme
+		})
+		console.log("Change")
+	}
+
 	render() {
+		let currentTheme = themeLight
+		if (this.state.isDarkTheme)
+			currentTheme = themeDark
 		return (
-			<Container maxWidth={false}>
-				<Header handleLogout={this.props.handleLogout}/>
-				<Paper>
-					<Paper className="container">
-						<Grid item xs={1}>
-							<Box className="container__data-user">
-								<Avatar alt="Remy Sharp" src={this.props.avatar}/>
-								{this.props.login}
-							</Box>
-						</Grid>    
-						<Grid item xs={4}>
-							<TextField id="search" className="container__search-label" label="Поиск" />
-						</Grid>
-						<Grid item xs={8}>
-							<Box className="container__current-contact" ml={1} p={2.5}>
-								<Box className="container__current-contact__name">
-									{this.state.name ? <Avatar alt="Remy Sharp" src={this.state.avatars[this.state.name]}/> : <div></div>}
-									{this.state.name}
+			<ThemeProvider theme={currentTheme}>
+				<CssBaseline />
+				<Container maxWidth={false}>
+					<Header handleLogout={this.props.handleLogout} handleChangeTheme={this.handleChangeTheme}/>
+					<Paper>
+						<Paper className="container">
+							<Grid item xs={1}>
+								<Box className="container__data-user">
+									<Avatar alt="Remy Sharp" src={this.props.avatar}/>
+									{this.props.login}
 								</Box>
-								<Box className="container__current-contact__last-enter">
-									{this.state.name ? <span>был(а) в сети в 12.30</span> : <div></div>}
-								</Box>
-							</Box>
-						</Grid>
-					</Paper>
-					<Box height="65vh">
-						<Grid item xs={12} className="contacts"> 
+							</Grid>
 							<Grid item xs={4}>
-								{
-									this.state.names.map(name => {
-										if (name !== this.props.login) {
-											const lastMessage = this.state.lastMessages[name]
-											return <Contact 
-												key={name} 
-												name={name} 
-												lastText={lastMessage.text} 
-												time={lastMessage.time} 
-												handleClickContact={() => this.handleClickContact(name)}
-												avatar={this.state.avatars[name]}/>
-										}
-										return null
-									})
-								}
-							</Grid>  
-							<CurrentChat 
-								message={this.state.message} 
-								handleWriteMessage={this.handleWriteMessage} 
-								messages={this.state.messages} 
-								onClick={() => this.getTextMessage()}
-								hasInterlocutor={this.state.names.length > 0}/>
-						</Grid>
-					</Box>
-				</Paper>
-			</Container>
+								<TextField id="search" className="container__search-label" label="Поиск" />
+							</Grid>
+							<Grid item xs={8}>
+								<Box className="container__current-contact" ml={1} p={2.5}>
+									<Box className="container__current-contact__name">
+										{this.state.name ? <Avatar alt="Remy Sharp" src={this.state.avatars[this.state.name]}/> : <div></div>}
+										{this.state.name}
+									</Box>
+									<Box className="container__current-contact__last-enter">
+										{this.state.name ? <span>был(а) в сети в 12.30</span> : <div></div>}
+									</Box>
+								</Box>
+							</Grid>
+						</Paper>
+						<Box height="65vh">
+							<Grid item xs={12} className="contacts">
+								<Grid item xs={4}>
+									{
+										this.state.names.map(name => {
+											if (name !== this.props.login) {
+												const lastMessage = this.state.lastMessages[name]
+												return <Contact
+													key={name}
+													name={name}
+													lastText={lastMessage.text}
+													time={lastMessage.time}
+													handleClickContact={() => this.handleClickContact(name)}
+													avatar={this.state.avatars[name]}/>
+											}
+											return null
+										})
+									}
+								</Grid>  
+								<CurrentChat
+									message={this.state.message}
+									handleWriteMessage={this.handleWriteMessage}
+									messages={this.state.messages}
+									onClick={() => this.getTextMessage()}
+									hasInterlocutor={this.state.names.length > 0}/>
+							</Grid>
+						</Box>
+					</Paper>
+				</Container>
+			</ThemeProvider>
 		)
 	}
 }
