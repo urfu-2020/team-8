@@ -3,10 +3,11 @@ import express from "express"
 const { client_id, redirect_uri, client_secret, lifetime } = require("./config")
 import fetch from "node-fetch"
 import {Users, User} from "./db"
+import {Message} from "./Message"
 
 const app = express()
 const db = new Users()
-let allMessages : any = [] // сообщения имеют следующий вид {messageText: "text", fromUser: "from", toUser: "to", messageTime: "time"}
+let allMessages : Message[] = [] // сообщения имеют следующий вид {messageText: "text", fromUser: "from", toUser: "to", messageTime: "time"}
 
 
 app.use(bodyParser.json())
@@ -91,15 +92,15 @@ app.post("/api/lastMessages", (req, res) => {
 	ans["avatars"] = {}
 	
 	for (let i = allMessages.length - 1; i >= 0; i--) {
-		let fromUser = allMessages[i].fromUser
-		let toUser = allMessages[i].toUser
+		let fromUser = allMessages[i].from.name
+		let toUser = allMessages[i].to.name
 		if (fromUser === currentUserName || toUser === currentUserName) {
 			if (!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) {
-				ans["messages"][fromUser] = {text: allMessages[i].messageText, isMy: true, time: allMessages[i].messageTime }
+				ans["messages"][fromUser] = {text: allMessages[i].text, isMy: true, time: allMessages[i].time }
 				ans["avatars"][fromUser] = db[fromUser].avatar
 			}
 			if (!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) {
-				ans["messages"][toUser] = {text: allMessages[i].messageText, isMy: false, time: allMessages[i].messageTime }
+				ans["messages"][toUser] = {text: allMessages[i].text, isMy: false, time: allMessages[i].time }
 				ans["avatars"][toUser] = db[toUser].avatar
 			}
 		}
@@ -120,10 +121,10 @@ app.post("/api/messages", (req, res) => {
 	let interlocutorUserName = req.body.interlocutorUserName
 	let messages : any = []
 	for (let i = 0; i < allMessages.length; i++) {
-		if (allMessages[i].fromUser === currentUserName && allMessages[i].toUser === interlocutorUserName)
-			messages.push({text: allMessages[i].messageText, isMy: true, time: allMessages[i].messageTime })
-		else if (allMessages[i].fromUser === interlocutorUserName && allMessages[i].toUser === currentUserName)
-			messages.push({text: allMessages[i].messageText, isMy: false, time: allMessages[i].messageTime })
+		if (allMessages[i].from.name === currentUserName && allMessages[i].to.name === interlocutorUserName)
+			messages.push({text: allMessages[i].text, isMy: true, time: allMessages[i].time })
+		else if (allMessages[i].from.name === interlocutorUserName && allMessages[i].to.name === currentUserName)
+			messages.push({text: allMessages[i].text, isMy: false, time: allMessages[i].time })
 	}
 	return res.json({"messages": messages})
 })
@@ -144,7 +145,7 @@ app.post("/api/addMessage", (req, res) => {
 		toUser = currentUserName
 	}
 	allMessages.push({
-		messageText: message.text, fromUser: fromUser, toUser: toUser, messageTime: message.time
+		text: message.text, from: db[fromUser], to: db[toUser], time: message.time
 	})
 	return res.json({"status": true})
 })
