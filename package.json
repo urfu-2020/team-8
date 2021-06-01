@@ -14,7 +14,7 @@
     "backend": "npm run dev --workspace=backend",
     "heroku-postbuild": "npm run-script deploy-backend && npm run-script deploy-frontend",
     "deploy-backend": "cd backend && npm install",
-    "deploy-frontend": "cd frontend && npm install && npm run build && surge --project ./build --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}",
+    "deploy-frontend": "cd frontend && npm install && npm run build && cp build/index.html build/200.html && surge --project ./build --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}",
     "start": "cd backend && npm run start"
   },
   "browserslist": {
