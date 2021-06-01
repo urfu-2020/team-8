@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "start": "node dist/index.js",
-    "build": "rimraf dist && tsc",
+    "tsc": "tsc",
+    "build": "rimraf dist && npm run tsc",
     "test": "echo \"Warn: no test specified\" && exit 0",
     "lint": "eslint src/**/*.ts --fix"
   },
