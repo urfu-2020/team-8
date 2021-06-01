@@ -13,7 +13,7 @@
     "frontend": "npm run dev --workspace=frontend",
     "backend": "npm run dev --workspace=backend",
     "heroku-postbuild": "npm run-script deploy-backend && npm run-script deploy-frontend",
-    "deploy-backend": "cd backend && npm install -g typescript && npm install && npm run build",
+    "deploy-backend": "cd backend && npm install",
     "deploy-frontend": "cd frontend && npm install && npm run build && surge --project ./build --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}",
     "start": "cd backend && npm run start"
   },
