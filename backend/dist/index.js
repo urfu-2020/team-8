@@ -43,6 +43,7 @@ app.post("/api/authenticate", function (req, res) {
     })
         .then(function (response) { return response.json(); })
         .then(function (response) {
+        console.log("[INFO] https://github.com/login/oauth/access_token response " + response);
         var access_token = response.access_token;
         // Request to return data of a user that has been authenticated
         return node_fetch_1.default("https://api.github.com/user", {
@@ -53,6 +54,7 @@ app.post("/api/authenticate", function (req, res) {
     })
         .then(function (response) { return response.json(); })
         .then(function (response) {
+        console.log("[INFO] https://api.github.com/user response " + response);
         var user = new db_1.User(response.login, response.avatar_url, true);
         var userName = response.login;
         if (db[userName]) {
