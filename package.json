@@ -10,12 +10,12 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "lint": "npm run lint --workspaces",
-    "build": "cd backend && npm install && npm run build",
-    "start": "cd backend && npm run start",
     "frontend": "npm run dev --workspace=frontend",
     "backend": "npm run dev --workspace=backend",
-    "heroku-postbuild": "npm run-script surge",
-    "surge": "cd frontend && npm install && npm run build && surge --project ./build --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}"
+    "heroku-postbuild": "npm run-script deploy-frontend && npm run-script deploy-backend",
+    "deploy-backend": "cd backend && npm install && npm run build",
+    "deploy-frontend": "cd frontend && npm install && npm run build && surge --project ./build --domain messenger.urfu.surge.sh --token ${SURGE_TOKEN}",
+    "start": "cd backend && npm run start"
   },
   "browserslist": {
     "production": [
