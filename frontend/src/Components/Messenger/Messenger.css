@@ -7,6 +7,7 @@
 .container__current-contact__name {
 	text-align: left;
 	width: 50%;
+	display: flex;
 }
 
 .container__current-contact__last-enter {
