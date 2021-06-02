@@ -131,8 +131,8 @@ app.post("/api/lastMessages", async (req, res) => {
 		const usersCollection = await client_users.db("userStorage").collection("users")
 
 		for (let i = allMessages.length - 1; i >= 0; i--) {
-			const fromUser = allMessages[i].from.name
-			const toUser = allMessages[i].to.name
+			const fromUser = allMessages[i].from
+			const toUser = allMessages[i].to
 			if (fromUser === currentUserName || toUser === currentUserName) {
 				if (!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) {
 					ans["messages"][fromUser] = {text: allMessages[i].text, isMy: true, time: allMessages[i].time }
