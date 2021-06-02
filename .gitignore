@@ -26,9 +26,6 @@ yarn-error.log*
 .idea
 .vscode
 
-### TS ###
-dist
-
 ### Node ###
 # Logs
 logs
