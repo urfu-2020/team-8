@@ -43,8 +43,8 @@ app.post("/api/authenticate", (req, res) => {
 	})
 		.then((response) => response.json())
 		.then((response) => {
+			console.log(`[INFO] https://github.com/login/oauth/access_token response ${response}`)
 			const access_token = response.access_token
-
 			// Request to return data of a user that has been authenticated
 			return fetch("https://api.github.com/user", {
 				headers: {
@@ -54,6 +54,7 @@ app.post("/api/authenticate", (req, res) => {
 		})
 		.then((response) => response.json())
 		.then((response) => {
+			console.log(`[INFO] https://api.github.com/user response ${response}`)
 			const user = new User(response.login, response.avatar_url, true)
 			const userName = response.login
 			if (db[userName]) {
