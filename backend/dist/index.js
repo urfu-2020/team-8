@@ -216,8 +216,8 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 _a.label = 5;
             case 5:
                 if (!(i >= 0)) return [3 /*break*/, 10];
-                fromUser = allMessages[i].from.name;
-                toUser = allMessages[i].to.name;
+                fromUser = allMessages[i].from;
+                toUser = allMessages[i].to;
                 if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 9];
                 if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 7];
                 ans["messages"][fromUser] = { text: allMessages[i].text, isMy: true, time: allMessages[i].time };
