@@ -150,7 +150,7 @@ app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, v
         }
     });
 }); });
-app.get("/api/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userName, usersCollection, userData, allUsers, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -182,7 +182,7 @@ app.get("/api/users", function (req, res) { return __awaiter(void 0, void 0, voi
             case 7:
                 error_1 = _a.sent();
                 console.debug(error_1);
-                return [2 /*return*/, res.json("Sorry, application is crashed)")];
+                return [2 /*return*/, res.json("Sorry, application is crashed)").status(503)];
             case 8:
                 console.debug("In finally block");
                 return [7 /*endfinally*/];

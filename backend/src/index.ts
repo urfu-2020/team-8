@@ -93,7 +93,7 @@ app.post("/api/logout", async (req, res) => {
 })
 
 
-app.get("/api/users", async (req, res) => {
+app.post("/api/users", async (req, res) => {
 	const userName = req.body.login
 	try {
 		const usersCollection = await client_users.db("userStorage").collection("users")
@@ -110,7 +110,7 @@ app.get("/api/users", async (req, res) => {
 		}
 	} catch (error) {
 		console.debug(error)
-		return res.json("Sorry, application is crashed)")
+		return res.json("Sorry, application is crashed)").status(503)
 	}
 	finally {
 		console.debug("In finally block")
