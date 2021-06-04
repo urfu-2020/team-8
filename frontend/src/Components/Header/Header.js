@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
 	}
 }))
 
-function Header({handleLogout}) {
+function Header({handleLogout, handleChangeTheme}) {
 	const classes = useStyles()
 	return (
 		<AppBar position="static">
@@ -19,6 +19,7 @@ function Header({handleLogout}) {
 				<Typography variant="h6" color="inherit" className={classes.title}>
           			Kilogram
 				</Typography>
+				<Button color="inherit" onClick={()=> handleChangeTheme()}>Theme</Button>
 				<Button color="inherit" onClick={()=> handleLogout()}>Logout</Button>
 			</Toolbar>
 		</AppBar>

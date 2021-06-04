@@ -3,6 +3,9 @@ import { Redirect } from "react-router-dom"
 import GithubIcon from "mdi-react/GithubIcon"
 import { AuthContext } from "../../App"
 import "./Login.css"
+import { ThemeProvider } from "@material-ui/core/styles"
+import CssBaseline from "@material-ui/core/CssBaseline"
+import themeDark from "../../themeDark"
 
 
 export default function Login() {
@@ -54,29 +57,32 @@ export default function Login() {
 	}
 
 	return (
-		<section className="container">
-			<div>
-				<h1 className="name-app">Killogram</h1>
-				<span>{data.errorMessage}</span>
-				<div className="login-container">
-					{data.isLoading ? (
-						<div className="loader-container">
-							<div className="loader"></div>
-						</div>
-					) : (
-						<a
-							className="login-link"
-							href={`https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`}
-							onClick={() => {
-								setData({ ...data, errorMessage: "" })
-							}}
-						>
-							<GithubIcon />
-							<span>Login with GitHub</span>
-						</a>
-					)}
+		<ThemeProvider theme={themeDark}>
+			<CssBaseline />
+			<section className="container">
+				<div>
+					<h1 className="name-app">Killogram</h1>
+					<span>{data.errorMessage}</span>
+					<div className="login-container">
+						{data.isLoading ? (
+							<div className="loader-container">
+								<div className="loader"></div>
+							</div>
+						) : (
+							<a
+								className="login-link"
+								href={`https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`}
+								onClick={() => {
+									setData({ ...data, errorMessage: "" })
+								}}
+							>
+								<GithubIcon />
+								<span>Login with GitHub</span>
+							</a>
+						)}
+					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		</ThemeProvider>
 	)
 }
