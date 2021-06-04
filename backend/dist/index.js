@@ -150,12 +150,12 @@ app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, v
         }
     });
 }); });
-app.get("/api/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userName, usersCollection, userData, allUsers, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                userName = "Ivan";
+                userName = req.body.login;;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 7, 8, 9]);
