@@ -98,7 +98,7 @@ app.post("/api/users", async (req, res) => {
 	try {
 		const usersCollection = await client_users.db("userStorage").collection("users")
 		const userData = await usersCollection.findOne({name: userName})
-		if (userData !== null && userData.login) {
+		if (userData !== null && userData.isLogin) {
 			// достанет всех пользователей из базы
 			const allUsers: User[] = await usersCollection.find({}).toArray()
 			return res.status(200).json(allUsers.map(user => user.name))
