@@ -156,6 +156,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
         switch (_a.label) {
             case 0:
                 userName = req.body.login;
+                console.debug(userName)
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 7, 8, 9]);
