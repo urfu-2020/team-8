@@ -26,7 +26,8 @@ class Messenger extends React.Component {
 			lastMessages: {},
 			avatars: {},
 			message: "",
-			isDarkTheme: false
+			isDarkTheme: false,
+			messageForChange: null
 		}
 		this.handleWriteMessage = this.handleWriteMessage.bind(this)
 		this.handleChangeTheme = this.handleChangeTheme.bind(this)
@@ -40,6 +41,7 @@ class Messenger extends React.Component {
 			.then(res => res.json())
 			.then(
 				(result) => {
+					console.log(result)
 					let names = Object.keys(result.messages).filter(name => name !== this.props.login)
 					let name = this.state.name
 					if (!name && names.length > 0) {
@@ -86,15 +88,33 @@ class Messenger extends React.Component {
 		if (this.state.message) {
 			let date = new Date()
 			let message = {text: this.state.message, isMy: true, time: date.getHours() + "." + date.getMinutes()} // TODO getFormattedDate(new Date())} 
-			fetch(`${config().host}/api/addMessage`, {
-				method: "POST",
-				body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login})
-			})
-				.then((res) => {
-					this.setState({
-						message: ""
-					})
+			
+			if (this.state.messageForChange !== null) {
+				
+				fetch(`${config().host}/api/changeMessage`, {
+					method: "POST",
+					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": this.state.messageForChange, "newText": message.text, "currentUserName": this.props.login})
 				})
+					.then((res) => {
+						this.setState({
+							message: ""
+						})
+					})
+				this.setState({
+					messageForChange: null
+				})
+			}
+			else {
+				fetch(`${config().host}/api/addMessage`, {
+					method: "POST",
+					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login})
+				})
+					.then((res) => {
+						this.setState({
+							message: ""
+						})
+					})
+			}
 		}
 	}
 
@@ -117,6 +137,15 @@ class Messenger extends React.Component {
 		console.log("Change")
 	}
 
+	onClickMessage = m => e => {
+		if (m !== undefined){
+			this.setState({
+				message: m.text,
+				messageForChange: m
+			})
+		}
+	};
+
 	render() {
 		let currentTheme = themeLight
 		if (this.state.isDarkTheme)
@@ -135,7 +164,7 @@ class Messenger extends React.Component {
 								</Box>
 							</Grid>
 							<Grid item xs={4}>
-								<TextField id="search" className="container__search-label" label="Поиск" />
+								<TextField id="search" className="container__search-label" label="Поиск"/>
 							</Grid>
 							<Grid item xs={8}>
 								<Box className="container__current-contact" ml={1} p={2.5}>
@@ -173,7 +202,9 @@ class Messenger extends React.Component {
 									handleWriteMessage={this.handleWriteMessage}
 									messages={this.state.messages}
 									onClick={() => this.getTextMessage()}
-									hasInterlocutor={this.state.names.length > 0}/>
+									hasInterlocutor={this.state.names.length > 0}
+									onClickMessage={this.onClickMessage}
+									shouldChangeMessage={this.state.messageForChange !== null}/>
 							</Grid>
 						</Box>
 					</Paper>

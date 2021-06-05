@@ -59,7 +59,7 @@ app.post("/api/authenticate", (req, res) => {
 			const user: User = {name: response.login, avatar: response.avatar_url, online: true}
 			try {
 				const usersCollection = client_users.db("userStorage").collection("users")
-
+				
 				if (await usersCollection.findOne({name: user.name})) {
 					await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
 					console.debug(`User ${user.name} is login`)
@@ -101,6 +101,7 @@ app.post("/api/users", async (req, res) => {
 		if (userData !== null && userData.isLogin) {
 			// достанет всех пользователей из базы
 			const allUsers: User[] = await usersCollection.find({}).toArray()
+			console.log(allUsers.map(user => user.name))
 			return res.status(200).json(allUsers.map(user => user.name))
 		} else if (userData === null) {
 			return res.status(400).json("Incorrect body")
@@ -129,7 +130,7 @@ app.post("/api/lastMessages", async (req, res) => {
 		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
 		const allMessages = await messagesCollection.find({}).toArray()
 		const usersCollection = await client_users.db("userStorage").collection("users")
-
+		
 		for (let i = allMessages.length - 1; i >= 0; i--) {
 			const fromUser = allMessages[i].from
 			const toUser = allMessages[i].to
@@ -222,6 +223,36 @@ app.post("/api/addMessage", async (req, res) => {
 	return res.json({"status": true})
 })
 
+app.post("/api/changeMessage", async (req, res) => {
+	const message = req.body.message
+	const interlocutorUserName = req.body.interlocutorUserName
+	const currentUserName = req.body.currentUserName
+	const newText = req.body.newText
+	let fromUser
+	let toUser
+	if (message.isMy) {
+		fromUser = currentUserName
+		toUser = interlocutorUserName
+	}
+	else {
+		fromUser = interlocutorUserName
+		toUser = currentUserName
+	}
+
+	try {
+		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
+		const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy }
+		const result = await messagesCollection.update(messageInformation, {$set: {text: newText}})
+	} catch (error) {
+		console.debug(error)
+		return res.json("Sorry, application is crashed)")
+	}
+	finally {
+		console.debug("In finally block")
+	}
+
+	return res.json({"status": true})
+})
 
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}/api/`))

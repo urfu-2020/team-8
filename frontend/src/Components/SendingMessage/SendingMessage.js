@@ -4,7 +4,7 @@ import Box from "@material-ui/core/Box"
 import { Button, TextField } from "@material-ui/core"
 
 
-function SendingMessage ({onClick, handleWriteMessage, message}) {
+function SendingMessage ({onClick, handleWriteMessage, message, shouldChangeMessage}) {
 	return (
 		<Box className="send-form">
 			<TextField 
@@ -14,7 +14,11 @@ function SendingMessage ({onClick, handleWriteMessage, message}) {
 				label="Написать сообщение" 
 				value={message} 
 				onChange={handleWriteMessage}/>
-			<Button variant="contained" onClick={()=>onClick()}>Отправить</Button>
+			{shouldChangeMessage
+				? <Button variant="contained" onClick={()=>onClick()}>Изменить</Button>
+				: <Button variant="contained" onClick={()=>onClick()}>Отправить</Button>
+			}
+			
 		</Box>
 	)
 }
