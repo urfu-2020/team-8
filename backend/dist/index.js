@@ -165,7 +165,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, usersCollection.findOne({ name: userName })];
             case 3:
                 userData = _a.sent();
-                if (!(userData !== null && userData.login)) return [3 /*break*/, 5];
+                if (!(userData !== null && userData.isLogin)) return [3 /*break*/, 5];
                 return [4 /*yield*/, usersCollection.find({}).toArray()];
             case 4:
                 allUsers = _a.sent();
