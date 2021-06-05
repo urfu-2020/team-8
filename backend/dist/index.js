@@ -156,7 +156,6 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
         switch (_a.label) {
             case 0:
                 userName = req.body.login;
-                console.debug(userName)
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 7, 8, 9]);
@@ -333,6 +332,45 @@ app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 
             case 4:
                 error_4 = _a.sent();
                 console.debug(error_4);
+                return [2 /*return*/, res.json("Sorry, application is crashed)")];
+            case 5:
+                console.debug("In finally block");
+                return [7 /*endfinally*/];
+            case 6: return [2 /*return*/, res.json({ "status": true })];
+        }
+    });
+}); });
+app.post("/api/changeMessage", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var message, interlocutorUserName, currentUserName, newText, fromUser, toUser, messagesCollection, messageInformation, result, error_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                message = req.body.message;
+                interlocutorUserName = req.body.interlocutorUserName;
+                currentUserName = req.body.currentUserName;
+                newText = req.body.newText;
+                if (message.isMy) {
+                    fromUser = currentUserName;
+                    toUser = interlocutorUserName;
+                }
+                else {
+                    fromUser = interlocutorUserName;
+                    toUser = currentUserName;
+                }
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 4, 5, 6]);
+                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
+            case 2:
+                messagesCollection = _a.sent();
+                messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy };
+                return [4 /*yield*/, messagesCollection.update(messageInformation, { $set: { text: newText } })];
+            case 3:
+                result = _a.sent();
+                return [3 /*break*/, 6];
+            case 4:
+                error_5 = _a.sent();
+                console.debug(error_5);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
             case 5:
                 console.debug("In finally block");
