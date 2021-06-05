@@ -101,7 +101,6 @@ app.post("/api/users", async (req, res) => {
 		if (userData !== null && userData.isLogin) {
 			// достанет всех пользователей из базы
 			const allUsers: User[] = await usersCollection.find({}).toArray()
-			console.log(allUsers.map(user => user.name))
 			return res.status(200).json(allUsers.map(user => user.name))
 		} else if (userData === null) {
 			return res.status(400).json("Incorrect body")

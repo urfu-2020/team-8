@@ -41,7 +41,6 @@ class Messenger extends React.Component {
 			.then(res => res.json())
 			.then(
 				(result) => {
-					console.log(result)
 					let names = Object.keys(result.messages).filter(name => name !== this.props.login)
 					let name = this.state.name
 					if (!name && names.length > 0) {
@@ -90,7 +89,6 @@ class Messenger extends React.Component {
 			let message = {text: this.state.message, isMy: true, time: date.getHours() + "." + date.getMinutes()} // TODO getFormattedDate(new Date())} 
 			
 			if (this.state.messageForChange !== null) {
-				
 				fetch(`${config().host}/api/changeMessage`, {
 					method: "POST",
 					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": this.state.messageForChange, "newText": message.text, "currentUserName": this.props.login})
