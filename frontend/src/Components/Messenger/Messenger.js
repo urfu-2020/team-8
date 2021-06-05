@@ -13,7 +13,7 @@ import { ThemeProvider } from "@material-ui/core/styles"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import themeLight from "../../themeLight"
 import themeDark from "../../themeDark"
-
+import config from "../../config"
 
 
 class Messenger extends React.Component {
@@ -33,7 +33,7 @@ class Messenger extends React.Component {
 	}  
 
 	update() {
-		fetch("http://localhost:5000/api/lastMessages", {
+		fetch(`${config().host}/api/lastMessages`, {
 			method: "POST",
 			body: JSON.stringify({"currentUserName": this.props.login})
 		})
@@ -51,7 +51,7 @@ class Messenger extends React.Component {
 						lastMessages: result.messages,
 						avatars: result.avatars
 					})
-					fetch("http://localhost:5000/api/messages", {
+					fetch(`${config().host}/api/messages`, {
 						method: "POST",
 						body: JSON.stringify({"interlocutorUserName": this.state.name, "currentUserName": this.props.login}),
 					})
@@ -86,7 +86,7 @@ class Messenger extends React.Component {
 		if (this.state.message) {
 			let date = new Date()
 			let message = {text: this.state.message, isMy: true, time: date.getHours() + "." + date.getMinutes()} // TODO getFormattedDate(new Date())} 
-			fetch("http://localhost:5000/api/addMessage", {
+			fetch(`${config().host}/api/addMessage`, {
 				method: "POST",
 				body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login})
 			})

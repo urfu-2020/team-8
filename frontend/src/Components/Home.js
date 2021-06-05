@@ -3,7 +3,7 @@ import { Redirect } from "react-router-dom"
 import { AuthContext } from "../App"
 import Messenger from "./Messenger/Messenger"
 import {getElapsedTime} from "../utils/date.utils"
-
+import config from "../config"
 
 export default function Home() {
 	const { state, dispatch } = useContext(AuthContext)
@@ -22,7 +22,7 @@ export default function Home() {
 		dispatch({
 			type: "LOGOUT"
 		})
-		fetch("http://localhost:5000/logout", {
+		fetch(`${config().host}/logout`, {
 			method: "POST",
 			body: JSON.stringify(state.user)
 		})
