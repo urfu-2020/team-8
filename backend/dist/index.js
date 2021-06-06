@@ -192,7 +192,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
 }); });
 // Получить последние сообщения и аватарки других пользователей
 app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, ans, messagesCollection, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
+    var currentUserName, ans, delayedMessagesCollecrion, date, dateStr, messagesShouldSend, messagesCollection, i, result, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -202,48 +202,72 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 ans["avatars"] = {};
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 12, 13, 14]);
-                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
+                _a.trys.push([1, 18, 19, 20]);
+                return [4 /*yield*/, client_messages.db("messagesStorage").collection("delayedMessages")];
             case 2:
-                messagesCollection = _a.sent();
-                return [4 /*yield*/, messagesCollection.find({}).toArray()];
+                delayedMessagesCollecrion = _a.sent();
+                date = new Date();
+                dateStr = date.getHours() + "." + date.getMinutes();
+                return [4 /*yield*/, delayedMessagesCollecrion.find({ time: dateStr }).toArray()];
             case 3:
-                allMessages = _a.sent();
-                return [4 /*yield*/, client_users.db("userStorage").collection("users")];
+                messagesShouldSend = _a.sent();
+                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
             case 4:
-                usersCollection = _a.sent();
-                i = allMessages.length - 1;
+                messagesCollection = _a.sent();
+                i = 0;
                 _a.label = 5;
             case 5:
-                if (!(i >= 0)) return [3 /*break*/, 10];
-                fromUser = allMessages[i].from;
-                toUser = allMessages[i].to;
-                if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 9];
-                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 7];
-                ans["messages"][fromUser] = { text: allMessages[i].text, isMy: true, time: allMessages[i].time };
-                return [4 /*yield*/, usersCollection.findOne({ name: fromUser })];
+                if (!(i < messagesShouldSend.length)) return [3 /*break*/, 8];
+                return [4 /*yield*/, messagesCollection.insertOne(messagesShouldSend[i])];
             case 6:
-                fromUserData = _a.sent();
-                ans["avatars"][fromUser] = fromUserData.avatar;
+                result = _a.sent();
+                delayedMessagesCollecrion.deleteOne(messagesShouldSend[i]);
                 _a.label = 7;
             case 7:
-                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) return [3 /*break*/, 9];
-                ans["messages"][toUser] = { text: allMessages[i].text, isMy: false, time: allMessages[i].time };
-                return [4 /*yield*/, usersCollection.findOne({ name: toUser })];
+                i++;
+                return [3 /*break*/, 5];
             case 8:
+                date = new Date();
+                dateStr = date.getHours() + "." + date.getMinutes();
+                messagesCollection.deleteMany({ timeDelete: dateStr });
+                return [4 /*yield*/, messagesCollection.find({}).toArray()];
+            case 9:
+                allMessages = _a.sent();
+                return [4 /*yield*/, client_users.db("userStorage").collection("users")];
+            case 10:
+                usersCollection = _a.sent();
+                i = allMessages.length - 1;
+                _a.label = 11;
+            case 11:
+                if (!(i >= 0)) return [3 /*break*/, 16];
+                fromUser = allMessages[i].from;
+                toUser = allMessages[i].to;
+                if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 15];
+                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 13];
+                ans["messages"][fromUser] = { text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
+                return [4 /*yield*/, usersCollection.findOne({ name: fromUser })];
+            case 12:
+                fromUserData = _a.sent();
+                ans["avatars"][fromUser] = fromUserData.avatar;
+                _a.label = 13;
+            case 13:
+                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) return [3 /*break*/, 15];
+                ans["messages"][toUser] = { text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
+                return [4 /*yield*/, usersCollection.findOne({ name: toUser })];
+            case 14:
                 toUserData = _a.sent();
                 ans["avatars"][toUser] = toUserData.avatar;
-                _a.label = 9;
-            case 9:
+                _a.label = 15;
+            case 15:
                 i--;
-                return [3 /*break*/, 5];
-            case 10: return [4 /*yield*/, usersCollection.find({}).toArray()];
-            case 11:
+                return [3 /*break*/, 11];
+            case 16: return [4 /*yield*/, usersCollection.find({}).toArray()];
+            case 17:
                 allUsers = _a.sent();
                 allUsersNames = allUsers.map(function (user) { return user.name; });
                 _loop_1 = function (name_1) {
                     if (!Object.prototype.hasOwnProperty.call(ans["messages"], name_1)) {
-                        ans["messages"][name_1] = { text: "Начните чат", isMy: true, time: "00.00" };
+                        ans["messages"][name_1] = { text: "Начните чат", isMy: true, time: "00.00", timeDelete: null };
                         ans["avatars"][name_1] = allUsers.filter(function (user) { return user.name == name_1; })[0].avatar;
                     }
                 };
@@ -252,15 +276,15 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                     name_1 = allUsersNames_1[_i];
                     _loop_1(name_1);
                 }
-                return [3 /*break*/, 14];
-            case 12:
+                return [3 /*break*/, 20];
+            case 18:
                 error_2 = _a.sent();
                 console.debug(error_2);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 13:
+            case 19:
                 console.debug("In finally block");
                 return [7 /*endfinally*/];
-            case 14: return [2 /*return*/, res.json(ans)];
+            case 20: return [2 /*return*/, res.json(ans)];
         }
     });
 }); });
@@ -284,9 +308,9 @@ app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0,
                 allMessages = _a.sent();
                 for (i = 0; i < allMessages.length; i++) {
                     if (allMessages[i].from === currentUserName && allMessages[i].to === interlocutorUserName)
-                        messages.push({ text: allMessages[i].text, isMy: true, time: allMessages[i].time });
+                        messages.push({ text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete });
                     else if (allMessages[i].from === interlocutorUserName && allMessages[i].to === currentUserName)
-                        messages.push({ text: allMessages[i].text, isMy: false, time: allMessages[i].time });
+                        messages.push({ text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete });
                 }
                 return [3 /*break*/, 6];
             case 4:
@@ -302,13 +326,14 @@ app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0,
 }); });
 // Добавить сообщение {text: string, isMy: bool, time: string} между двумя пользователями
 app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var message, interlocutorUserName, currentUserName, fromUser, toUser, messagesCollection, messageInformation, result, error_4;
+    var message, interlocutorUserName, currentUserName, shouldSendLater, fromUser, toUser, messagesCollection, messageInformation, result, messagesCollection, messageInformation, result, error_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 message = req.body.message;
                 interlocutorUserName = req.body.interlocutorUserName;
                 currentUserName = req.body.currentUserName;
+                shouldSendLater = req.body.shouldSendLater;
                 if (message.isMy) {
                     fromUser = currentUserName;
                     toUser = interlocutorUserName;
@@ -319,24 +344,34 @@ app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 
                 }
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 4, 5, 6]);
+                _a.trys.push([1, 8, 9, 10]);
+                if (!!shouldSendLater) return [3 /*break*/, 4];
                 return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
             case 2:
                 messagesCollection = _a.sent();
-                messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy };
+                messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
                 return [4 /*yield*/, messagesCollection.insertOne(messageInformation)];
             case 3:
                 result = _a.sent();
                 console.debug(result.insertedCount + " documents with message information were inserted with the _id: " + result.insertedId);
-                return [3 /*break*/, 6];
-            case 4:
+                return [3 /*break*/, 7];
+            case 4: return [4 /*yield*/, client_messages.db("messagesStorage").collection("delayedMessages")];
+            case 5:
+                messagesCollection = _a.sent();
+                messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
+                return [4 /*yield*/, messagesCollection.insertOne(messageInformation)];
+            case 6:
+                result = _a.sent();
+                _a.label = 7;
+            case 7: return [3 /*break*/, 10];
+            case 8:
                 error_4 = _a.sent();
                 console.debug(error_4);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 5:
+            case 9:
                 console.debug("In finally block");
                 return [7 /*endfinally*/];
-            case 6: return [2 /*return*/, res.json({ "status": true })];
+            case 10: return [2 /*return*/, res.json({ "status": true })];
         }
     });
 }); });
@@ -363,7 +398,7 @@ app.post("/api/changeMessage", function (req, res) { return __awaiter(void 0, vo
                 return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
             case 2:
                 messagesCollection = _a.sent();
-                messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy };
+                messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
                 return [4 /*yield*/, messagesCollection.update(messageInformation, { $set: { text: newText } })];
             case 3:
                 result = _a.sent();
