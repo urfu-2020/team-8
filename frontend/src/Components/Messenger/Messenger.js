@@ -27,7 +27,10 @@ class Messenger extends React.Component {
 			avatars: {},
 			message: "",
 			isDarkTheme: false,
-			messageForChange: null
+			messageForChange: null,
+			isTurnOnTimerDelete: false,
+			isTurnOnTimerSend: false,
+			
 		}
 		this.handleWriteMessage = this.handleWriteMessage.bind(this)
 		this.handleChangeTheme = this.handleChangeTheme.bind(this)
@@ -86,8 +89,24 @@ class Messenger extends React.Component {
 	getTextMessage() {
 		if (this.state.message) {
 			let date = new Date()
-			let message = {text: this.state.message, isMy: true, time: date.getHours() + "." + date.getMinutes()} // TODO getFormattedDate(new Date())} 
-			
+			let timeDelete = null
+			let minutesDelete = config().minutesDelete
+			let minutesSend = config().minutesSend
+			if (this.state.isTurnOnTimerDelete) {
+				let minutes = minutesDelete
+				if (this.state.isTurnOnTimerSend) {
+					minutes += minutesSend
+				}
+				let newDate = new Date(date.getTime() + (minutes * 60 * 1000))
+				timeDelete = newDate.getHours() + "." + newDate.getMinutes()
+			}
+			let message = {text: this.state.message, isMy: true, time: date.getHours() + "." + date.getMinutes(), timeDelete: timeDelete} // TODO getFormattedDate(new Date())} 
+			let shouldSendLater = this.state.isTurnOnTimerSend
+			if (this.state.isTurnOnTimerSend) {
+				let newDate = new Date(date.getTime() + (minutesSend * 60 * 1000))
+				let timeSend = newDate.getHours() + "." + newDate.getMinutes()
+				message.time = timeSend
+			}
 			if (this.state.messageForChange !== null) {
 				fetch(`${config().host}/api/changeMessage`, {
 					method: "POST",
@@ -105,7 +124,7 @@ class Messenger extends React.Component {
 			else {
 				fetch(`${config().host}/api/addMessage`, {
 					method: "POST",
-					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login})
+					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login, "shouldSendLater": shouldSendLater})
 				})
 					.then((res) => {
 						this.setState({
@@ -132,7 +151,6 @@ class Messenger extends React.Component {
 		this.setState({
 			isDarkTheme: !isDarkTheme
 		})
-		console.log("Change")
 	}
 
 	onClickMessage = m => e => {
@@ -143,6 +161,20 @@ class Messenger extends React.Component {
 			})
 		}
 	};
+
+	onClickTimerDelete() {
+		let isTurnOnTimerDelete = this.state.isTurnOnTimerDelete
+		this.setState({
+			isTurnOnTimerDelete: !isTurnOnTimerDelete
+		})
+	}
+
+	onClickTimerSend() {
+		let isTurnOnTimerSend = this.state.isTurnOnTimerSend
+		this.setState({
+			isTurnOnTimerSend: !isTurnOnTimerSend
+		})
+	}
 
 	render() {
 		let currentTheme = themeLight
@@ -202,7 +234,11 @@ class Messenger extends React.Component {
 									onClick={() => this.getTextMessage()}
 									hasInterlocutor={this.state.names.length > 0}
 									onClickMessage={this.onClickMessage}
-									shouldChangeMessage={this.state.messageForChange !== null}/>
+									shouldChangeMessage={this.state.messageForChange !== null}
+									onClickTimerDelete={() => this.onClickTimerDelete()} 
+									isTurnOnTimerDelete={this.state.isTurnOnTimerDelete}
+									onClickTimerSend={() => this.onClickTimerSend()}
+									isTurnOnTimerSend={this.state.isTurnOnTimerSend}/>
 							</Grid>
 						</Box>
 					</Paper>
