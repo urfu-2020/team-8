@@ -4,7 +4,7 @@ import { Box, Paper, Grid } from "@material-ui/core"
 import SendingMessage from "./../../Components/SendingMessage/SendingMessage"
 import Message from "./../../Components/Message/Message"
 
-function CurrentChat({messages, onClick, message, handleWriteMessage, hasInterlocutor, onClickMessage, shouldChangeMessage}) {
+function CurrentChat({messages, onClick, message, handleWriteMessage, hasInterlocutor, onClickMessage, shouldChangeMessage,  onClickTimerDelete, isTurnOnTimerDelete, onClickTimerSend, isTurnOnTimerSend}) {
 	return (
 		<Grid item xs={8}>
 			<Paper className="current-contact">
@@ -12,7 +12,15 @@ function CurrentChat({messages, onClick, message, handleWriteMessage, hasInterlo
 					{messages.map(element => <Message key={element.id} message={element} onClickMessage={onClickMessage}/>)}
 				</Box>
 				{hasInterlocutor
-					? <SendingMessage message={message} onClick={()=>onClick()} handleWriteMessage={handleWriteMessage} shouldChangeMessage={shouldChangeMessage}/>
+					? <SendingMessage 
+						message={message} 
+						onClick={()=>onClick()} 
+						handleWriteMessage={handleWriteMessage} 
+						shouldChangeMessage={shouldChangeMessage} 
+						onClickTimerDelete={() => onClickTimerDelete()} 
+						isTurnOnTimerDelete={isTurnOnTimerDelete}
+						onClickTimerSend={() => onClickTimerSend()}
+						isTurnOnTimerSend={isTurnOnTimerSend}/>
 					: <div>Нет других пользователей</div>
 				}
 

@@ -7,10 +7,10 @@ const { client_id, redirect_uri, client_secret, lifetime, mongo_user, mongo_pass
 const MongoClient = require("mongodb").MongoClient
 const app = express()
 
-const uri_users = `mongodb+srv://${mongo_user}:${mongo_password}@messengercluster.zgsoy.mongodb.net/userStorage?retryWrites=true&w=majority`
+const uri_users = `mongodb+srv://${mongo_user}:${mongo_password}@messengercluster.zgsoy.mongodb.net/testStorage?retryWrites=true&w=majority`
 const client_users = new MongoClient(uri_users, { useNewUrlParser: true, useUnifiedTopology: true })
 
-const uri_messages = `mongodb+srv://${mongo_user}:${mongo_password}@messengercluster.zgsoy.mongodb.net/messagesStorage?retryWrites=true&w=majority`
+const uri_messages = `mongodb+srv://${mongo_user}:${mongo_password}@messengercluster.zgsoy.mongodb.net/testMessageStorage?retryWrites=true&w=majority`
 const client_messages = new MongoClient(uri_messages, { useNewUrlParser: true, useUnifiedTopology: true })
 
 client_users.connect()
@@ -58,7 +58,7 @@ app.post("/api/authenticate", (req, res) => {
 		.then(async response => {
 			const user: User = {name: response.login, avatar: response.avatar_url, online: true}
 			try {
-				const usersCollection = client_users.db("userStorage").collection("users")
+				const usersCollection = client_users.db("testStorage").collection("users")
 				
 				if (await usersCollection.findOne({name: user.name})) {
 					await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
@@ -81,7 +81,7 @@ app.post("/api/authenticate", (req, res) => {
 app.post("/api/logout", async (req, res) => {
 	const userName = req.body.login
 	try {
-		const usersCollection = client_users.db("userStorage").collection("users")
+		const usersCollection = client_users.db("testStorage").collection("users")
 		if (await usersCollection.findOne({name: userName})) {
 			await usersCollection.updateOne({name: userName}, {$set: {isLogin: false}})
 			console.debug(`User ${userName} is logout`)
@@ -96,7 +96,7 @@ app.post("/api/logout", async (req, res) => {
 app.post("/api/users", async (req, res) => {
 	const userName = req.body.login
 	try {
-		const usersCollection = await client_users.db("userStorage").collection("users")
+		const usersCollection = await client_users.db("testStorage").collection("users")
 		const userData = await usersCollection.findOne({name: userName})
 		if (userData !== null && userData.isLogin) {
 			// достанет всех пользователей из базы
@@ -126,21 +126,26 @@ app.post("/api/lastMessages", async (req, res) => {
 	ans["avatars"] = {}
 
 	try {
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
+		const messagesCollection = await client_messages.db("testMessageStorage").collection("message")
+		
+		let date = new Date()
+		let dateStr = date.getHours() + "." + date.getMinutes()
+		messagesCollection.deleteMany({timeDelete: dateStr})
+
 		const allMessages = await messagesCollection.find({}).toArray()
-		const usersCollection = await client_users.db("userStorage").collection("users")
+		const usersCollection = await client_users.db("testStorage").collection("users")
 		
 		for (let i = allMessages.length - 1; i >= 0; i--) {
 			const fromUser = allMessages[i].from
 			const toUser = allMessages[i].to
 			if (fromUser === currentUserName || toUser === currentUserName) {
 				if (!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) {
-					ans["messages"][fromUser] = {text: allMessages[i].text, isMy: true, time: allMessages[i].time }
+					ans["messages"][fromUser] = {text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete }
 					const fromUserData = await usersCollection.findOne({name: fromUser})
 					ans["avatars"][fromUser] = fromUserData.avatar
 				}
 				if (!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) {
-					ans["messages"][toUser] = {text: allMessages[i].text, isMy: false, time: allMessages[i].time }
+					ans["messages"][toUser] = {text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete }
 					const toUserData = await usersCollection.findOne({name: toUser})
 					ans["avatars"][toUser] = toUserData.avatar
 				}
@@ -152,7 +157,7 @@ app.post("/api/lastMessages", async (req, res) => {
 		// если сообщений между пользователями еще не было
 		for (const name of allUsersNames) {
 			if (!Object.prototype.hasOwnProperty.call(ans["messages"], name)) {
-				ans["messages"][name] = {text: "Начните чат", isMy: true, time: "00.00"}
+				ans["messages"][name] = {text: "Начните чат", isMy: true, time: "00.00", timeDelete: null}
 				ans["avatars"][name] = allUsers.filter(user => user.name == name)[0].avatar
 			}
 		}
@@ -172,13 +177,13 @@ app.post("/api/messages", async (req, res) => {
 	const interlocutorUserName = req.body.interlocutorUserName
 	const messages : any = []
 	try {
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
+		const messagesCollection = await client_messages.db("testMessageStorage").collection("message")
 		const allMessages = await messagesCollection.find({}).toArray()
 		for (let i = 0; i < allMessages.length; i++) {
 			if (allMessages[i].from === currentUserName && allMessages[i].to === interlocutorUserName)
-				messages.push({text: allMessages[i].text, isMy: true, time: allMessages[i].time })
+				messages.push({text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete })
 			else if (allMessages[i].from === interlocutorUserName && allMessages[i].to === currentUserName)
-				messages.push({text: allMessages[i].text, isMy: false, time: allMessages[i].time })
+				messages.push({text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete })
 		}
 	} catch (error) {
 		console.debug(error)
@@ -207,8 +212,8 @@ app.post("/api/addMessage", async (req, res) => {
 	}
 
 	try {
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
-		const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy }
+		const messagesCollection = await client_messages.db("testMessageStorage").collection("message")
+		const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
 		const result = await messagesCollection.insertOne(messageInformation)
 		console.debug(`${result.insertedCount} documents with message information were inserted with the _id: ${result.insertedId}`)
 	} catch (error) {
@@ -239,8 +244,8 @@ app.post("/api/changeMessage", async (req, res) => {
 	}
 
 	try {
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
-		const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy }
+		const messagesCollection = await client_messages.db("testMessageStorage").collection("message")
+		const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
 		const result = await messagesCollection.update(messageInformation, {$set: {text: newText}})
 	} catch (error) {
 		console.debug(error)
