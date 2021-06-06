@@ -132,7 +132,11 @@ app.post("/api/lastMessages", async (req, res) => {
 		if (h >= 24) {
 			h -= 24
 		}
-		let dateStr = h + "." + date.getMinutes()
+		let firstSym = ""
+		if (h < 10) {
+			firstSym = "0"
+		}
+		let dateStr = firstSym + h + "." + date.getMinutes()
 		const messagesShouldSend = await delayedMessagesCollection.find({time: dateStr}).toArray()
 		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
 		
@@ -145,7 +149,11 @@ app.post("/api/lastMessages", async (req, res) => {
 		if (h >= 24) {
 			h -= 24
 		}
-		dateStr = h + "." + date.getMinutes()
+		firstSym = ""
+		if (h < 10) {
+			firstSym = "0"
+		}
+		dateStr = firstSym + h + "." + date.getMinutes()
 		const result3 = await messagesCollection.deleteMany({timeDelete: dateStr})
 		console.debug(`${result3.deletedCount} documents with message information were deleted with time ${dateStr}.`)
 

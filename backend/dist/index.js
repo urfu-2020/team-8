@@ -192,7 +192,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
 }); });
 // Получить последние сообщения и аватарки других пользователей
 app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, ans, delayedMessagesCollection, date, h, dateStr, messagesShouldSend, messagesCollection, i, result, result3, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
+    var currentUserName, ans, delayedMessagesCollection, date, h, firstSym, dateStr, messagesShouldSend, messagesCollection, i, result, result3, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -211,7 +211,11 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 if (h >= 24) {
                     h -= 24;
                 }
-                dateStr = h + "." + date.getMinutes();
+                firstSym = "";
+                if (h < 10) {
+                    firstSym = "0";
+                }
+                dateStr = firstSym + h + "." + date.getMinutes();
                 return [4 /*yield*/, delayedMessagesCollection.find({ time: dateStr }).toArray()];
             case 3:
                 messagesShouldSend = _a.sent();
@@ -238,7 +242,11 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 if (h >= 24) {
                     h -= 24;
                 }
-                dateStr = h + "." + date.getMinutes();
+                firstSym = "";
+                if (h < 10) {
+                    firstSym = "0";
+                }
+                dateStr = firstSym + h + "." + date.getMinutes();
                 return [4 /*yield*/, messagesCollection.deleteMany({ timeDelete: dateStr })];
             case 10:
                 result3 = _a.sent();
