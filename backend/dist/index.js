@@ -202,7 +202,7 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 ans["avatars"] = {};
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 18, 19, 20]);
+                _a.trys.push([1, 20, 21, 22]);
                 return [4 /*yield*/, client_messages.db("messagesStorage").collection("delayedMessages")];
             case 2:
                 delayedMessagesCollection = _a.sent();
@@ -217,52 +217,56 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 i = 0;
                 _a.label = 5;
             case 5:
-                if (!(i < messagesShouldSend.length)) return [3 /*break*/, 8];
+                if (!(i < messagesShouldSend.length)) return [3 /*break*/, 9];
                 return [4 /*yield*/, messagesCollection.insertOne(messagesShouldSend[i])];
             case 6:
                 result = _a.sent();
-                delayedMessagesCollection.deleteOne(messagesShouldSend[i]);
-                _a.label = 7;
+                return [4 /*yield*/, delayedMessagesCollection.deleteOne(messagesShouldSend[i])];
             case 7:
+                _a.sent();
+                _a.label = 8;
+            case 8:
                 i++;
                 return [3 /*break*/, 5];
-            case 8:
+            case 9:
                 date = new Date();
                 dateStr = date.getHours() + "." + date.getMinutes();
-                messagesCollection.deleteMany({ timeDelete: dateStr });
+                return [4 /*yield*/, messagesCollection.deleteMany({ timeDelete: dateStr })];
+            case 10:
+                _a.sent();
                 return [4 /*yield*/, messagesCollection.find({}).toArray()];
-            case 9:
+            case 11:
                 allMessages = _a.sent();
                 return [4 /*yield*/, client_users.db("userStorage").collection("users")];
-            case 10:
+            case 12:
                 usersCollection = _a.sent();
                 i = allMessages.length - 1;
-                _a.label = 11;
-            case 11:
-                if (!(i >= 0)) return [3 /*break*/, 16];
-                fromUser = allMessages[i].from;
-                toUser = allMessages[i].to;
-                if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 15];
-                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 13];
-                ans["messages"][fromUser] = { text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
-                return [4 /*yield*/, usersCollection.findOne({ name: fromUser })];
-            case 12:
-                fromUserData = _a.sent();
-                ans["avatars"][fromUser] = fromUserData.avatar;
                 _a.label = 13;
             case 13:
-                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) return [3 /*break*/, 15];
-                ans["messages"][toUser] = { text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
-                return [4 /*yield*/, usersCollection.findOne({ name: toUser })];
+                if (!(i >= 0)) return [3 /*break*/, 18];
+                fromUser = allMessages[i].from;
+                toUser = allMessages[i].to;
+                if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 17];
+                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 15];
+                ans["messages"][fromUser] = { text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
+                return [4 /*yield*/, usersCollection.findOne({ name: fromUser })];
             case 14:
-                toUserData = _a.sent();
-                ans["avatars"][toUser] = toUserData.avatar;
+                fromUserData = _a.sent();
+                ans["avatars"][fromUser] = fromUserData.avatar;
                 _a.label = 15;
             case 15:
-                i--;
-                return [3 /*break*/, 11];
-            case 16: return [4 /*yield*/, usersCollection.find({}).toArray()];
+                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) return [3 /*break*/, 17];
+                ans["messages"][toUser] = { text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
+                return [4 /*yield*/, usersCollection.findOne({ name: toUser })];
+            case 16:
+                toUserData = _a.sent();
+                ans["avatars"][toUser] = toUserData.avatar;
+                _a.label = 17;
             case 17:
+                i--;
+                return [3 /*break*/, 13];
+            case 18: return [4 /*yield*/, usersCollection.find({}).toArray()];
+            case 19:
                 allUsers = _a.sent();
                 allUsersNames = allUsers.map(function (user) { return user.name; });
                 _loop_1 = function (name_1) {
@@ -276,15 +280,15 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                     name_1 = allUsersNames_1[_i];
                     _loop_1(name_1);
                 }
-                return [3 /*break*/, 20];
-            case 18:
+                return [3 /*break*/, 22];
+            case 20:
                 error_2 = _a.sent();
                 console.debug(error_2);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 19:
+            case 21:
                 console.debug("In finally block");
                 return [7 /*endfinally*/];
-            case 20: return [2 /*return*/, res.json(ans)];
+            case 22: return [2 /*return*/, res.json(ans)];
         }
     });
 }); });
