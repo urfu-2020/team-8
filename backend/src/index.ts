@@ -134,11 +134,11 @@ app.post("/api/lastMessages", async (req, res) => {
 		
 		for (let i = 0; i < messagesShouldSend.length; i++) {
 			const result = await messagesCollection.insertOne(messagesShouldSend[i])
-			delayedMessagesCollection.deleteOne(messagesShouldSend[i])
+			await delayedMessagesCollection.deleteOne(messagesShouldSend[i])
 		}
 		date = new Date()
 		dateStr = date.getHours() + "." + date.getMinutes()
-		messagesCollection.deleteMany({timeDelete: dateStr})
+		await messagesCollection.deleteMany({timeDelete: dateStr})
 
 		const allMessages = await messagesCollection.find({}).toArray()
 		const usersCollection = await client_users.db("userStorage").collection("users")
