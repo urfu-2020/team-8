@@ -1,5 +1,4 @@
 import bodyParser from "body-parser"
-import e from "express"
 import express from "express"
 import fetch from "node-fetch"
 import type { User } from "./models/user"
@@ -127,15 +126,15 @@ app.post("/api/lastMessages", async (req, res) => {
 	ans["avatars"] = {}
 
 	try {
-		const delayedMessagesCollecrion = await client_messages.db("messagesStorage").collection("delayedMessages")
+		const delayedMessagesCollection = await client_messages.db("messagesStorage").collection("delayedMessages")
 		let date = new Date()
 		let dateStr = date.getHours() + "." + date.getMinutes()
-		const messagesShouldSend = await delayedMessagesCollecrion.find({time: dateStr}).toArray()
+		const messagesShouldSend = await delayedMessagesCollection.find({time: dateStr}).toArray()
 		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
 		
 		for (let i = 0; i < messagesShouldSend.length; i++) {
 			const result = await messagesCollection.insertOne(messagesShouldSend[i])
-			delayedMessagesCollecrion.deleteOne(messagesShouldSend[i])
+			delayedMessagesCollection.deleteOne(messagesShouldSend[i])
 		}
 		date = new Date()
 		dateStr = date.getHours() + "." + date.getMinutes()

@@ -192,7 +192,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
 }); });
 // Получить последние сообщения и аватарки других пользователей
 app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, ans, delayedMessagesCollecrion, date, dateStr, messagesShouldSend, messagesCollection, i, result, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
+    var currentUserName, ans, delayedMessagesCollection, date, dateStr, messagesShouldSend, messagesCollection, i, result, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -205,10 +205,10 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 _a.trys.push([1, 18, 19, 20]);
                 return [4 /*yield*/, client_messages.db("messagesStorage").collection("delayedMessages")];
             case 2:
-                delayedMessagesCollecrion = _a.sent();
+                delayedMessagesCollection = _a.sent();
                 date = new Date();
                 dateStr = date.getHours() + "." + date.getMinutes();
-                return [4 /*yield*/, delayedMessagesCollecrion.find({ time: dateStr }).toArray()];
+                return [4 /*yield*/, delayedMessagesCollection.find({ time: dateStr }).toArray()];
             case 3:
                 messagesShouldSend = _a.sent();
                 return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
@@ -221,7 +221,7 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 return [4 /*yield*/, messagesCollection.insertOne(messagesShouldSend[i])];
             case 6:
                 result = _a.sent();
-                delayedMessagesCollecrion.deleteOne(messagesShouldSend[i]);
+                delayedMessagesCollection.deleteOne(messagesShouldSend[i]);
                 _a.label = 7;
             case 7:
                 i++;
