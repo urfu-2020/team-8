@@ -128,7 +128,15 @@ app.post("/api/lastMessages", async (req, res) => {
 	try {
 		const delayedMessagesCollection = await client_messages.db("messagesStorage").collection("delayedMessages")
 		let date = new Date()
-		let dateStr = date.getHours() + "." + date.getMinutes()
+		let h = date.getHours() + 5
+		if (h >= 24) {
+			h -= 24
+		}
+		let firstSym = ""
+		if (h < 10) {
+			firstSym = "0"
+		}
+		let dateStr = firstSym + h + "." + date.getMinutes()
 		const messagesShouldSend = await delayedMessagesCollection.find({time: dateStr}).toArray()
 		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
 		
@@ -137,9 +145,17 @@ app.post("/api/lastMessages", async (req, res) => {
 			await delayedMessagesCollection.deleteOne(messagesShouldSend[i])
 		}
 		date = new Date()
-		dateStr = date.getHours() + "." + date.getMinutes()
+		h = date.getHours() + 5
+		if (h >= 24) {
+			h -= 24
+		}
+		firstSym = ""
+		if (h < 10) {
+			firstSym = "0"
+		}
+		dateStr = firstSym + h + "." + date.getMinutes()
 		const result3 = await messagesCollection.deleteMany({timeDelete: dateStr})
-		console.debug(`${result3.deletedCount} documents with message information were deleted with time ${dateStr}. ${result3.acknowledged}`)
+		console.debug(`${result3.deletedCount} documents with message information were deleted with time ${dateStr}.`)
 
 		const allMessages = await messagesCollection.find({}).toArray()
 		const usersCollection = await client_users.db("userStorage").collection("users")
