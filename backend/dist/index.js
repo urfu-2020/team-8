@@ -192,7 +192,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
 }); });
 // Получить последние сообщения и аватарки других пользователей
 app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, ans, delayedMessagesCollection, date, dateStr, messagesShouldSend, messagesCollection, i, result, result3, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
+    var currentUserName, ans, delayedMessagesCollection, date, h, dateStr, messagesShouldSend, messagesCollection, i, result, result3, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -207,7 +207,11 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
             case 2:
                 delayedMessagesCollection = _a.sent();
                 date = new Date();
-                dateStr = date.getHours() + "." + date.getMinutes();
+                h = date.getHours() + 5;
+                if (h >= 24) {
+                    h -= 24;
+                }
+                dateStr = h + "." + date.getMinutes();
                 return [4 /*yield*/, delayedMessagesCollection.find({ time: dateStr }).toArray()];
             case 3:
                 messagesShouldSend = _a.sent();
@@ -230,11 +234,15 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 return [3 /*break*/, 5];
             case 9:
                 date = new Date();
-                dateStr = date.getHours() + "." + date.getMinutes();
+                h = date.getHours() + 5;
+                if (h >= 24) {
+                    h -= 24;
+                }
+                dateStr = h + "." + date.getMinutes();
                 return [4 /*yield*/, messagesCollection.deleteMany({ timeDelete: dateStr })];
             case 10:
                 result3 = _a.sent();
-                console.debug(result3.deletedCount + " documents with message information were deleted with time " + dateStr + ". " + result3.acknowledged);
+                console.debug(result3.deletedCount + " documents with message information were deleted with time " + dateStr + ".");
                 return [4 /*yield*/, messagesCollection.find({}).toArray()];
             case 11:
                 allMessages = _a.sent();
