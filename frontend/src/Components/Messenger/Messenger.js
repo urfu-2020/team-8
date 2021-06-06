@@ -90,13 +90,23 @@ class Messenger extends React.Component {
 		if (this.state.message) {
 			let date = new Date()
 			let timeDelete = null
-			let minutes = 1
+			let minutesDelete = config().minutesDelete
+			let minutesSend = config().minutesSend
 			if (this.state.isTurnOnTimerDelete) {
+				let minutes = minutesDelete
+				if (this.state.isTurnOnTimerSend) {
+					minutes += minutesSend
+				}
 				let newDate = new Date(date.getTime() + (minutes * 60 * 1000))
 				timeDelete = newDate.getHours() + "." + newDate.getMinutes()
 			}
 			let message = {text: this.state.message, isMy: true, time: date.getHours() + "." + date.getMinutes(), timeDelete: timeDelete} // TODO getFormattedDate(new Date())} 
-			
+			let shouldSendLater = this.state.isTurnOnTimerSend
+			if (this.state.isTurnOnTimerSend) {
+				let newDate = new Date(date.getTime() + (minutesSend * 60 * 1000))
+				let timeSend = newDate.getHours() + "." + newDate.getMinutes()
+				message.time = timeSend
+			}
 			if (this.state.messageForChange !== null) {
 				fetch(`${config().host}/api/changeMessage`, {
 					method: "POST",
@@ -114,7 +124,7 @@ class Messenger extends React.Component {
 			else {
 				fetch(`${config().host}/api/addMessage`, {
 					method: "POST",
-					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login})
+					body: JSON.stringify({"interlocutorUserName": this.state.name, "message": message, "currentUserName": this.props.login, "shouldSendLater": shouldSendLater})
 				})
 					.then((res) => {
 						this.setState({
