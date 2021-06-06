@@ -138,7 +138,8 @@ app.post("/api/lastMessages", async (req, res) => {
 		}
 		date = new Date()
 		dateStr = date.getHours() + "." + date.getMinutes()
-		await messagesCollection.deleteMany({timeDelete: dateStr})
+		const result3 = await messagesCollection.deleteMany({timeDelete: dateStr})
+		console.debug(`${result3.deletedCount} documents with message information were deleted with time ${dateStr}. ${result3.acknowledged}`)
 
 		const allMessages = await messagesCollection.find({}).toArray()
 		const usersCollection = await client_users.db("userStorage").collection("users")
