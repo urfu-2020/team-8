@@ -2,6 +2,8 @@ import bodyParser from "body-parser"
 import express from "express"
 import fetch from "node-fetch"
 import type { User } from "./models/user"
+import type { Message} from "./models/message"
+import { getOneUser, getAllUsers } from "./helpers/db_helpers"
 
 const { client_id, redirect_uri, client_secret, lifetime, mongo_user, mongo_password } = require("./config")
 const MongoClient = require("mongodb").MongoClient
@@ -15,6 +17,10 @@ const client_messages = new MongoClient(uri_messages, { useNewUrlParser: true, u
 
 client_users.connect()
 client_messages.connect()
+
+const usersCollection = client_users.db("userStorage").collection("users")
+const messagesCollection = client_messages.db("messagesStorage").collection("message")
+const delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages")
 
 app.use(bodyParser.json())
 app.use(bodyParser.json({ type: "text/*" }))
@@ -58,9 +64,7 @@ app.post("/api/authenticate", (req, res) => {
 		.then(async response => {
 			const user: User = {name: response.login, avatar: response.avatar_url, online: true}
 			try {
-				const usersCollection = client_users.db("userStorage").collection("users")
-				
-				if (await usersCollection.findOne({name: user.name})) {
+				if (await getOneUser(usersCollection, user.name)) {
 					await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
 					console.debug(`User ${user.name} is login`)
 				} else {
@@ -81,14 +85,14 @@ app.post("/api/authenticate", (req, res) => {
 app.post("/api/logout", async (req, res) => {
 	const userName = req.body.login
 	try {
-		const usersCollection = client_users.db("userStorage").collection("users")
-		if (await usersCollection.findOne({name: userName})) {
+		if (await getOneUser(usersCollection, userName)) {
 			await usersCollection.updateOne({name: userName}, {$set: {isLogin: false}})
 			console.debug(`User ${userName} is logout`)
 			return res.status(200).json("Success logout")
 		} else return res.status(403).json("Forbidden")
-	} finally {
-		console.debug("In finally block")
+	} catch (error) {
+		console.debug(error)
+		return res.json("Sorry, application is crashed)").status(503)
 	}
 })
 
@@ -96,11 +100,9 @@ app.post("/api/logout", async (req, res) => {
 app.post("/api/users", async (req, res) => {
 	const userName = req.body.login
 	try {
-		const usersCollection = await client_users.db("userStorage").collection("users")
-		const userData = await usersCollection.findOne({name: userName})
+		const userData = await getOneUser(usersCollection, userName)
 		if (userData !== null && userData.isLogin) {
-			// достанет всех пользователей из базы
-			const allUsers: User[] = await usersCollection.find({}).toArray()
+			const allUsers: User[] = await getAllUsers(usersCollection)
 			return res.status(200).json(allUsers.map(user => user.name))
 		} else if (userData === null) {
 			return res.status(400).json("Incorrect body")
@@ -112,10 +114,6 @@ app.post("/api/users", async (req, res) => {
 		console.debug(error)
 		return res.json("Sorry, application is crashed)").status(503)
 	}
-	finally {
-		console.debug("In finally block")
-	}
-
 })
 
 // Получить последние сообщения и аватарки других пользователей
@@ -126,7 +124,6 @@ app.post("/api/lastMessages", async (req, res) => {
 	ans["avatars"] = {}
 
 	try {
-		const delayedMessagesCollection = await client_messages.db("messagesStorage").collection("delayedMessages")
 		let date = new Date()
 		let h = date.getHours() + 5
 		if (h >= 24) {
@@ -138,10 +135,9 @@ app.post("/api/lastMessages", async (req, res) => {
 		}
 		let dateStr = firstSym + h + "." + date.getMinutes()
 		const messagesShouldSend = await delayedMessagesCollection.find({time: dateStr}).toArray()
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
 		
 		for (let i = 0; i < messagesShouldSend.length; i++) {
-			const result = await messagesCollection.insertOne(messagesShouldSend[i])
+			await messagesCollection.insertOne(messagesShouldSend[i])
 			await delayedMessagesCollection.deleteOne(messagesShouldSend[i])
 		}
 		date = new Date()
@@ -158,7 +154,6 @@ app.post("/api/lastMessages", async (req, res) => {
 		console.debug(`${result3.deletedCount} documents with message information were deleted with time ${dateStr}.`)
 
 		const allMessages = await messagesCollection.find({}).toArray()
-		const usersCollection = await client_users.db("userStorage").collection("users")
 		
 		for (let i = allMessages.length - 1; i >= 0; i--) {
 			const fromUser = allMessages[i].from
@@ -166,18 +161,18 @@ app.post("/api/lastMessages", async (req, res) => {
 			if (fromUser === currentUserName || toUser === currentUserName) {
 				if (!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) {
 					ans["messages"][fromUser] = {text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete }
-					const fromUserData = await usersCollection.findOne({name: fromUser})
+					const fromUserData = await getOneUser(usersCollection, fromUser)
 					ans["avatars"][fromUser] = fromUserData.avatar
 				}
 				if (!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) {
 					ans["messages"][toUser] = {text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete }
-					const toUserData = await usersCollection.findOne({name: toUser})
+					const toUserData = await getOneUser(usersCollection, fromUser)
 					ans["avatars"][toUser] = toUserData.avatar
 				}
 			}
 		}
 
-		const allUsers: User[] = await usersCollection.find({}).toArray()
+		const allUsers: User[] = await getAllUsers(usersCollection)
 		const allUsersNames = allUsers.map(user => user.name)
 		// если сообщений между пользователями еще не было
 		for (const name of allUsersNames) {
@@ -190,9 +185,6 @@ app.post("/api/lastMessages", async (req, res) => {
 		console.debug(error)
 		return res.json("Sorry, application is crashed)")
 	}
-	finally {
-		console.debug("In finally block")
-	}
 	return res.json(ans)
 })
 
@@ -202,7 +194,6 @@ app.post("/api/messages", async (req, res) => {
 	const interlocutorUserName = req.body.interlocutorUserName
 	const messages : any = []
 	try {
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
 		const allMessages = await messagesCollection.find({}).toArray()
 		for (let i = 0; i < allMessages.length; i++) {
 			if (allMessages[i].from === currentUserName && allMessages[i].to === interlocutorUserName)
@@ -213,9 +204,6 @@ app.post("/api/messages", async (req, res) => {
 	} catch (error) {
 		console.debug(error)
 		return res.json("Sorry, application is crashed)")
-	}
-	finally {
-		console.debug("In finally block")
 	}
 	return res.json({"messages": messages})
 })
@@ -239,24 +227,18 @@ app.post("/api/addMessage", async (req, res) => {
 
 	try {
 		if (!shouldSendLater) {
-			const messagesCollection = await client_messages.db("messagesStorage").collection("message")
-			const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
+			const messageInformation: Message = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
 			const result = await messagesCollection.insertOne(messageInformation)
 			console.debug(`${result.insertedCount} documents with message information were inserted with the _id: ${result.insertedId}`)
 		}
 		else {
-			const messagesCollection = await client_messages.db("messagesStorage").collection("delayedMessages")
-			const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
-			const result = await messagesCollection.insertOne(messageInformation)
+			const messageInformation: Message = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
+			await delayedMessagesCollection.insertOne(messageInformation)
 		}
 	} catch (error) {
 		console.debug(error)
 		return res.json("Sorry, application is crashed)")
 	}
-	finally {
-		console.debug("In finally block")
-	}
-
 	return res.json({"status": true})
 })
 
@@ -277,17 +259,12 @@ app.post("/api/changeMessage", async (req, res) => {
 	}
 
 	try {
-		const messagesCollection = await client_messages.db("messagesStorage").collection("message")
-		const messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
-		const result = await messagesCollection.update(messageInformation, {$set: {text: newText}})
+		const messageInformation: Message = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
+		await messagesCollection.update(messageInformation, {$set: {text: newText}})
 	} catch (error) {
 		console.debug(error)
 		return res.json("Sorry, application is crashed)")
 	}
-	finally {
-		console.debug("In finally block")
-	}
-
 	return res.json({"status": true})
 })
 

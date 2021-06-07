@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var body_parser_1 = __importDefault(require("body-parser"));
 var express_1 = __importDefault(require("express"));
 var node_fetch_1 = __importDefault(require("node-fetch"));
+var db_helpers_1 = require("./helpers/db_helpers");
 var _a = require("./config"), client_id = _a.client_id, redirect_uri = _a.redirect_uri, client_secret = _a.client_secret, lifetime = _a.lifetime, mongo_user = _a.mongo_user, mongo_password = _a.mongo_password;
 var MongoClient = require("mongodb").MongoClient;
 var app = express_1.default();
@@ -51,6 +52,9 @@ var uri_messages = "mongodb+srv://" + mongo_user + ":" + mongo_password + "@mess
 var client_messages = new MongoClient(uri_messages, { useNewUrlParser: true, useUnifiedTopology: true });
 client_users.connect();
 client_messages.connect();
+var usersCollection = client_users.db("userStorage").collection("users");
+var messagesCollection = client_messages.db("messagesStorage").collection("message");
+var delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages");
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.json({ type: "text/*" }));
 app.use(body_parser_1.default.urlencoded({ extended: false }));
@@ -87,7 +91,7 @@ app.post("/api/authenticate", function (req, res) {
     })
         .then((function (response) { return response.json(); }))
         .then(function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var user, usersCollection, insertedUser, partResp;
+        var user, insertedUser, partResp;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -95,8 +99,7 @@ app.post("/api/authenticate", function (req, res) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, , 7, 8]);
-                    usersCollection = client_users.db("userStorage").collection("users");
-                    return [4 /*yield*/, usersCollection.findOne({ name: user.name })];
+                    return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, user.name)];
                 case 2:
                     if (!_a.sent()) return [3 /*break*/, 4];
                     return [4 /*yield*/, usersCollection.updateOne({ name: user.name }, { $set: { isLogin: true } })];
@@ -124,16 +127,15 @@ app.post("/api/authenticate", function (req, res) {
     });
 });
 app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userName, usersCollection;
+    var userName, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 userName = req.body.login;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, , 6, 7]);
-                usersCollection = client_users.db("userStorage").collection("users");
-                return [4 /*yield*/, usersCollection.findOne({ name: userName })];
+                _a.trys.push([1, 6, , 7]);
+                return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, userName)];
             case 2:
                 if (!_a.sent()) return [3 /*break*/, 4];
                 return [4 /*yield*/, usersCollection.updateOne({ name: userName }, { $set: { isLogin: false } })];
@@ -144,55 +146,50 @@ app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, v
             case 4: return [2 /*return*/, res.status(403).json("Forbidden")];
             case 5: return [3 /*break*/, 7];
             case 6:
-                console.debug("In finally block");
-                return [7 /*endfinally*/];
+                error_1 = _a.sent();
+                console.debug(error_1);
+                return [2 /*return*/, res.json("Sorry, application is crashed)").status(503)];
             case 7: return [2 /*return*/];
         }
     });
 }); });
 app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userName, usersCollection, userData, allUsers, error_1;
+    var userName, userData, allUsers, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 userName = req.body.login;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 7, 8, 9]);
-                return [4 /*yield*/, client_users.db("userStorage").collection("users")];
+                _a.trys.push([1, 6, , 7]);
+                return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, userName)];
             case 2:
-                usersCollection = _a.sent();
-                return [4 /*yield*/, usersCollection.findOne({ name: userName })];
-            case 3:
                 userData = _a.sent();
-                if (!(userData !== null && userData.isLogin)) return [3 /*break*/, 5];
-                return [4 /*yield*/, usersCollection.find({}).toArray()];
-            case 4:
+                if (!(userData !== null && userData.isLogin)) return [3 /*break*/, 4];
+                return [4 /*yield*/, db_helpers_1.getAllUsers(usersCollection)];
+            case 3:
                 allUsers = _a.sent();
                 return [2 /*return*/, res.status(200).json(allUsers.map(function (user) { return user.name; }))];
-            case 5:
+            case 4:
                 if (userData === null) {
                     return [2 /*return*/, res.status(400).json("Incorrect body")];
                 }
                 else {
                     return [2 /*return*/, res.status(403).json("Forbidden")];
                 }
-                _a.label = 6;
-            case 6: return [3 /*break*/, 9];
-            case 7:
-                error_1 = _a.sent();
-                console.debug(error_1);
+                _a.label = 5;
+            case 5: return [3 /*break*/, 7];
+            case 6:
+                error_2 = _a.sent();
+                console.debug(error_2);
                 return [2 /*return*/, res.json("Sorry, application is crashed)").status(503)];
-            case 8:
-                console.debug("In finally block");
-                return [7 /*endfinally*/];
-            case 9: return [2 /*return*/];
+            case 7: return [2 /*return*/];
         }
     });
 }); });
 // Получить последние сообщения и аватарки других пользователей
 app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, ans, delayedMessagesCollection, date, h, firstSym, dateStr, messagesShouldSend, messagesCollection, i, result, result3, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_2;
+    var currentUserName, ans, date, h, firstSym, dateStr, messagesShouldSend, i, result3, allMessages, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -202,10 +199,7 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 ans["avatars"] = {};
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 20, 21, 22]);
-                return [4 /*yield*/, client_messages.db("messagesStorage").collection("delayedMessages")];
-            case 2:
-                delayedMessagesCollection = _a.sent();
+                _a.trys.push([1, 17, , 18]);
                 date = new Date();
                 h = date.getHours() + 5;
                 if (h >= 24) {
@@ -217,26 +211,23 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 }
                 dateStr = firstSym + h + "." + date.getMinutes();
                 return [4 /*yield*/, delayedMessagesCollection.find({ time: dateStr }).toArray()];
-            case 3:
+            case 2:
                 messagesShouldSend = _a.sent();
-                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
-            case 4:
-                messagesCollection = _a.sent();
                 i = 0;
-                _a.label = 5;
-            case 5:
-                if (!(i < messagesShouldSend.length)) return [3 /*break*/, 9];
+                _a.label = 3;
+            case 3:
+                if (!(i < messagesShouldSend.length)) return [3 /*break*/, 7];
                 return [4 /*yield*/, messagesCollection.insertOne(messagesShouldSend[i])];
-            case 6:
-                result = _a.sent();
-                return [4 /*yield*/, delayedMessagesCollection.deleteOne(messagesShouldSend[i])];
-            case 7:
+            case 4:
                 _a.sent();
-                _a.label = 8;
-            case 8:
+                return [4 /*yield*/, delayedMessagesCollection.deleteOne(messagesShouldSend[i])];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
                 i++;
-                return [3 /*break*/, 5];
-            case 9:
+                return [3 /*break*/, 3];
+            case 7:
                 date = new Date();
                 h = date.getHours() + 5;
                 if (h >= 24) {
@@ -248,42 +239,39 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 }
                 dateStr = firstSym + h + "." + date.getMinutes();
                 return [4 /*yield*/, messagesCollection.deleteMany({ timeDelete: dateStr })];
-            case 10:
+            case 8:
                 result3 = _a.sent();
                 console.debug(result3.deletedCount + " documents with message information were deleted with time " + dateStr + ".");
                 return [4 /*yield*/, messagesCollection.find({}).toArray()];
-            case 11:
+            case 9:
                 allMessages = _a.sent();
-                return [4 /*yield*/, client_users.db("userStorage").collection("users")];
-            case 12:
-                usersCollection = _a.sent();
                 i = allMessages.length - 1;
-                _a.label = 13;
-            case 13:
-                if (!(i >= 0)) return [3 /*break*/, 18];
+                _a.label = 10;
+            case 10:
+                if (!(i >= 0)) return [3 /*break*/, 15];
                 fromUser = allMessages[i].from;
                 toUser = allMessages[i].to;
-                if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 17];
-                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 15];
+                if (!(fromUser === currentUserName || toUser === currentUserName)) return [3 /*break*/, 14];
+                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], fromUser)) return [3 /*break*/, 12];
                 ans["messages"][fromUser] = { text: allMessages[i].text, isMy: true, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
-                return [4 /*yield*/, usersCollection.findOne({ name: fromUser })];
-            case 14:
+                return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, fromUser)];
+            case 11:
                 fromUserData = _a.sent();
                 ans["avatars"][fromUser] = fromUserData.avatar;
-                _a.label = 15;
-            case 15:
-                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) return [3 /*break*/, 17];
+                _a.label = 12;
+            case 12:
+                if (!!Object.prototype.hasOwnProperty.call(ans["messages"], toUser)) return [3 /*break*/, 14];
                 ans["messages"][toUser] = { text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete };
-                return [4 /*yield*/, usersCollection.findOne({ name: toUser })];
-            case 16:
+                return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, fromUser)];
+            case 13:
                 toUserData = _a.sent();
                 ans["avatars"][toUser] = toUserData.avatar;
-                _a.label = 17;
-            case 17:
+                _a.label = 14;
+            case 14:
                 i--;
-                return [3 /*break*/, 13];
-            case 18: return [4 /*yield*/, usersCollection.find({}).toArray()];
-            case 19:
+                return [3 /*break*/, 10];
+            case 15: return [4 /*yield*/, db_helpers_1.getAllUsers(usersCollection)];
+            case 16:
                 allUsers = _a.sent();
                 allUsersNames = allUsers.map(function (user) { return user.name; });
                 _loop_1 = function (name_1) {
@@ -297,21 +285,18 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                     name_1 = allUsersNames_1[_i];
                     _loop_1(name_1);
                 }
-                return [3 /*break*/, 22];
-            case 20:
-                error_2 = _a.sent();
-                console.debug(error_2);
+                return [3 /*break*/, 18];
+            case 17:
+                error_3 = _a.sent();
+                console.debug(error_3);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 21:
-                console.debug("In finally block");
-                return [7 /*endfinally*/];
-            case 22: return [2 /*return*/, res.json(ans)];
+            case 18: return [2 /*return*/, res.json(ans)];
         }
     });
 }); });
 // Получить сообщения между двумя пользователями
 app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, interlocutorUserName, messages, messagesCollection, allMessages, i, error_3;
+    var currentUserName, interlocutorUserName, messages, allMessages, i, error_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -320,12 +305,9 @@ app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0,
                 messages = [];
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 4, 5, 6]);
-                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
-            case 2:
-                messagesCollection = _a.sent();
+                _a.trys.push([1, 3, , 4]);
                 return [4 /*yield*/, messagesCollection.find({}).toArray()];
-            case 3:
+            case 2:
                 allMessages = _a.sent();
                 for (i = 0; i < allMessages.length; i++) {
                     if (allMessages[i].from === currentUserName && allMessages[i].to === interlocutorUserName)
@@ -333,21 +315,18 @@ app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0,
                     else if (allMessages[i].from === interlocutorUserName && allMessages[i].to === currentUserName)
                         messages.push({ text: allMessages[i].text, isMy: false, time: allMessages[i].time, timeDelete: allMessages[i].timeDelete });
                 }
-                return [3 /*break*/, 6];
-            case 4:
-                error_3 = _a.sent();
-                console.debug(error_3);
+                return [3 /*break*/, 4];
+            case 3:
+                error_4 = _a.sent();
+                console.debug(error_4);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 5:
-                console.debug("In finally block");
-                return [7 /*endfinally*/];
-            case 6: return [2 /*return*/, res.json({ "messages": messages })];
+            case 4: return [2 /*return*/, res.json({ "messages": messages })];
         }
     });
 }); });
 // Добавить сообщение {text: string, isMy: bool, time: string} между двумя пользователями
 app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var message, interlocutorUserName, currentUserName, shouldSendLater, fromUser, toUser, messagesCollection, messageInformation, result, messagesCollection, messageInformation, result, error_4;
+    var message, interlocutorUserName, currentUserName, shouldSendLater, fromUser, toUser, messageInformation, result, messageInformation, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -365,39 +344,31 @@ app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 
                 }
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 8, 9, 10]);
-                if (!!shouldSendLater) return [3 /*break*/, 4];
-                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
-            case 2:
-                messagesCollection = _a.sent();
+                _a.trys.push([1, 6, , 7]);
+                if (!!shouldSendLater) return [3 /*break*/, 3];
                 messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
                 return [4 /*yield*/, messagesCollection.insertOne(messageInformation)];
-            case 3:
+            case 2:
                 result = _a.sent();
                 console.debug(result.insertedCount + " documents with message information were inserted with the _id: " + result.insertedId);
-                return [3 /*break*/, 7];
-            case 4: return [4 /*yield*/, client_messages.db("messagesStorage").collection("delayedMessages")];
-            case 5:
-                messagesCollection = _a.sent();
+                return [3 /*break*/, 5];
+            case 3:
                 messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
-                return [4 /*yield*/, messagesCollection.insertOne(messageInformation)];
+                return [4 /*yield*/, delayedMessagesCollection.insertOne(messageInformation)];
+            case 4:
+                _a.sent();
+                _a.label = 5;
+            case 5: return [3 /*break*/, 7];
             case 6:
-                result = _a.sent();
-                _a.label = 7;
-            case 7: return [3 /*break*/, 10];
-            case 8:
-                error_4 = _a.sent();
-                console.debug(error_4);
+                error_5 = _a.sent();
+                console.debug(error_5);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 9:
-                console.debug("In finally block");
-                return [7 /*endfinally*/];
-            case 10: return [2 /*return*/, res.json({ "status": true })];
+            case 7: return [2 /*return*/, res.json({ "status": true })];
         }
     });
 }); });
 app.post("/api/changeMessage", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var message, interlocutorUserName, currentUserName, newText, fromUser, toUser, messagesCollection, messageInformation, result, error_5;
+    var message, interlocutorUserName, currentUserName, newText, fromUser, toUser, messageInformation, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -415,23 +386,17 @@ app.post("/api/changeMessage", function (req, res) { return __awaiter(void 0, vo
                 }
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 4, 5, 6]);
-                return [4 /*yield*/, client_messages.db("messagesStorage").collection("message")];
-            case 2:
-                messagesCollection = _a.sent();
+                _a.trys.push([1, 3, , 4]);
                 messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
                 return [4 /*yield*/, messagesCollection.update(messageInformation, { $set: { text: newText } })];
+            case 2:
+                _a.sent();
+                return [3 /*break*/, 4];
             case 3:
-                result = _a.sent();
-                return [3 /*break*/, 6];
-            case 4:
-                error_5 = _a.sent();
-                console.debug(error_5);
+                error_6 = _a.sent();
+                console.debug(error_6);
                 return [2 /*return*/, res.json("Sorry, application is crashed)")];
-            case 5:
-                console.debug("In finally block");
-                return [7 /*endfinally*/];
-            case 6: return [2 /*return*/, res.json({ "status": true })];
+            case 4: return [2 /*return*/, res.json({ "status": true })];
         }
     });
 }); });
