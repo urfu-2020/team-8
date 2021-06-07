@@ -18,10 +18,6 @@ const client_messages = new MongoClient(uri_messages, { useNewUrlParser: true, u
 client_users.connect()
 client_messages.connect()
 
-const usersCollection = client_users.db("userStorage").collection("users")
-const messagesCollection = client_messages.db("messagesStorage").collection("message")
-const delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages")
-
 app.use(bodyParser.json())
 app.use(bodyParser.json({ type: "text/*" }))
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -64,6 +60,7 @@ app.post("/api/authenticate", (req, res) => {
 		.then(async response => {
 			const user: User = {name: response.login, avatar: response.avatar_url, online: true}
 			try {
+				const usersCollection = client_users.db("userStorage").collection("users")
 				if (await getOneUser(usersCollection, user.name)) {
 					await usersCollection.updateOne({name: user.name}, {$set: {isLogin: true}})
 					console.debug(`User ${user.name} is login`)
@@ -85,6 +82,7 @@ app.post("/api/authenticate", (req, res) => {
 app.post("/api/logout", async (req, res) => {
 	const userName = req.body.login
 	try {
+		const usersCollection = client_users.db("userStorage").collection("users")
 		if (await getOneUser(usersCollection, userName)) {
 			await usersCollection.updateOne({name: userName}, {$set: {isLogin: false}})
 			console.debug(`User ${userName} is logout`)
@@ -100,6 +98,7 @@ app.post("/api/logout", async (req, res) => {
 app.post("/api/users", async (req, res) => {
 	const userName = req.body.login
 	try {
+		const usersCollection = client_users.db("userStorage").collection("users")
 		const userData = await getOneUser(usersCollection, userName)
 		if (userData !== null && userData.isLogin) {
 			const allUsers: User[] = await getAllUsers(usersCollection)
@@ -134,6 +133,10 @@ app.post("/api/lastMessages", async (req, res) => {
 			firstSym = "0"
 		}
 		let dateStr = firstSym + h + "." + date.getMinutes()
+
+		const messagesCollection = client_messages.db("messagesStorage").collection("message")
+		const delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages")
+
 		const messagesShouldSend = await delayedMessagesCollection.find({time: dateStr}).toArray()
 		
 		for (let i = 0; i < messagesShouldSend.length; i++) {
@@ -154,7 +157,8 @@ app.post("/api/lastMessages", async (req, res) => {
 		console.debug(`${result3.deletedCount} documents with message information were deleted with time ${dateStr}.`)
 
 		const allMessages = await messagesCollection.find({}).toArray()
-		
+		const usersCollection = client_users.db("userStorage").collection("users")
+
 		for (let i = allMessages.length - 1; i >= 0; i--) {
 			const fromUser = allMessages[i].from
 			const toUser = allMessages[i].to
@@ -194,6 +198,7 @@ app.post("/api/messages", async (req, res) => {
 	const interlocutorUserName = req.body.interlocutorUserName
 	const messages : any = []
 	try {
+		const messagesCollection = client_messages.db("messagesStorage").collection("message")
 		const allMessages = await messagesCollection.find({}).toArray()
 		for (let i = 0; i < allMessages.length; i++) {
 			if (allMessages[i].from === currentUserName && allMessages[i].to === interlocutorUserName)
@@ -226,6 +231,9 @@ app.post("/api/addMessage", async (req, res) => {
 	}
 
 	try {
+		const messagesCollection = client_messages.db("messagesStorage").collection("message")
+		const delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages")
+
 		if (!shouldSendLater) {
 			const messageInformation: Message = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
 			const result = await messagesCollection.insertOne(messageInformation)
@@ -259,6 +267,7 @@ app.post("/api/changeMessage", async (req, res) => {
 	}
 
 	try {
+		const messagesCollection = client_messages.db("messagesStorage").collection("message")
 		const messageInformation: Message = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete }
 		await messagesCollection.update(messageInformation, {$set: {text: newText}})
 	} catch (error) {

@@ -52,9 +52,6 @@ var uri_messages = "mongodb+srv://" + mongo_user + ":" + mongo_password + "@mess
 var client_messages = new MongoClient(uri_messages, { useNewUrlParser: true, useUnifiedTopology: true });
 client_users.connect();
 client_messages.connect();
-var usersCollection = client_users.db("userStorage").collection("users");
-var messagesCollection = client_messages.db("messagesStorage").collection("message");
-var delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages");
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.json({ type: "text/*" }));
 app.use(body_parser_1.default.urlencoded({ extended: false }));
@@ -91,7 +88,7 @@ app.post("/api/authenticate", function (req, res) {
     })
         .then((function (response) { return response.json(); }))
         .then(function (response) { return __awaiter(void 0, void 0, void 0, function () {
-        var user, insertedUser, partResp;
+        var user, usersCollection, insertedUser, partResp;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -99,6 +96,7 @@ app.post("/api/authenticate", function (req, res) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, , 7, 8]);
+                    usersCollection = client_users.db("userStorage").collection("users");
                     return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, user.name)];
                 case 2:
                     if (!_a.sent()) return [3 /*break*/, 4];
@@ -127,7 +125,7 @@ app.post("/api/authenticate", function (req, res) {
     });
 });
 app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userName, error_1;
+    var userName, usersCollection, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -135,6 +133,7 @@ app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, v
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 6, , 7]);
+                usersCollection = client_users.db("userStorage").collection("users");
                 return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, userName)];
             case 2:
                 if (!_a.sent()) return [3 /*break*/, 4];
@@ -154,7 +153,7 @@ app.post("/api/logout", function (req, res) { return __awaiter(void 0, void 0, v
     });
 }); });
 app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userName, userData, allUsers, error_2;
+    var userName, usersCollection, userData, allUsers, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -162,6 +161,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 6, , 7]);
+                usersCollection = client_users.db("userStorage").collection("users");
                 return [4 /*yield*/, db_helpers_1.getOneUser(usersCollection, userName)];
             case 2:
                 userData = _a.sent();
@@ -189,7 +189,7 @@ app.post("/api/users", function (req, res) { return __awaiter(void 0, void 0, vo
 }); });
 // Получить последние сообщения и аватарки других пользователей
 app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, ans, date, h, firstSym, dateStr, messagesShouldSend, i, result3, allMessages, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_3;
+    var currentUserName, ans, date, h, firstSym, dateStr, messagesCollection, delayedMessagesCollection, messagesShouldSend, i, result3, allMessages, usersCollection, i, fromUser, toUser, fromUserData, toUserData, allUsers, allUsersNames, _loop_1, _i, allUsersNames_1, name_1, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -210,6 +210,8 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                     firstSym = "0";
                 }
                 dateStr = firstSym + h + "." + date.getMinutes();
+                messagesCollection = client_messages.db("messagesStorage").collection("message");
+                delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages");
                 return [4 /*yield*/, delayedMessagesCollection.find({ time: dateStr }).toArray()];
             case 2:
                 messagesShouldSend = _a.sent();
@@ -245,6 +247,7 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
                 return [4 /*yield*/, messagesCollection.find({}).toArray()];
             case 9:
                 allMessages = _a.sent();
+                usersCollection = client_users.db("userStorage").collection("users");
                 i = allMessages.length - 1;
                 _a.label = 10;
             case 10:
@@ -296,7 +299,7 @@ app.post("/api/lastMessages", function (req, res) { return __awaiter(void 0, voi
 }); });
 // Получить сообщения между двумя пользователями
 app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var currentUserName, interlocutorUserName, messages, allMessages, i, error_4;
+    var currentUserName, interlocutorUserName, messages, messagesCollection, allMessages, i, error_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -306,6 +309,7 @@ app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0,
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
+                messagesCollection = client_messages.db("messagesStorage").collection("message");
                 return [4 /*yield*/, messagesCollection.find({}).toArray()];
             case 2:
                 allMessages = _a.sent();
@@ -326,7 +330,7 @@ app.post("/api/messages", function (req, res) { return __awaiter(void 0, void 0,
 }); });
 // Добавить сообщение {text: string, isMy: bool, time: string} между двумя пользователями
 app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var message, interlocutorUserName, currentUserName, shouldSendLater, fromUser, toUser, messageInformation, result, messageInformation, error_5;
+    var message, interlocutorUserName, currentUserName, shouldSendLater, fromUser, toUser, messagesCollection, delayedMessagesCollection, messageInformation, result, messageInformation, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -345,6 +349,8 @@ app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 6, , 7]);
+                messagesCollection = client_messages.db("messagesStorage").collection("message");
+                delayedMessagesCollection = client_messages.db("messagesStorage").collection("delayedMessages");
                 if (!!shouldSendLater) return [3 /*break*/, 3];
                 messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
                 return [4 /*yield*/, messagesCollection.insertOne(messageInformation)];
@@ -368,7 +374,7 @@ app.post("/api/addMessage", function (req, res) { return __awaiter(void 0, void 
     });
 }); });
 app.post("/api/changeMessage", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var message, interlocutorUserName, currentUserName, newText, fromUser, toUser, messageInformation, error_6;
+    var message, interlocutorUserName, currentUserName, newText, fromUser, toUser, messagesCollection, messageInformation, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -387,6 +393,7 @@ app.post("/api/changeMessage", function (req, res) { return __awaiter(void 0, vo
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
+                messagesCollection = client_messages.db("messagesStorage").collection("message");
                 messageInformation = { from: fromUser, to: toUser, text: message.text, time: message.time, isMy: message.isMy, timeDelete: message.timeDelete };
                 return [4 /*yield*/, messagesCollection.update(messageInformation, { $set: { text: newText } })];
             case 2:
